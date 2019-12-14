@@ -9,5 +9,6 @@ output(1): reward                           # definition of "output(1)": link "r
 lever_pressed: pin(2)                       # definition of "lever_pressed": link to hardware input port 2
 
 To set up and test a working version, see WHAND USER MANUAL.docx
+Some of the characteristics of Whand are described in Introduction to Whand.ppt
 A complete (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
 Whand is written in Python and is open source. A Python module named whand_drive.py contains all functions that need to be adapted to each type of hardware.
