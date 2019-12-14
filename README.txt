@@ -1,10 +1,12 @@
-WHAND aims at being the simplest possible language for programming small automatons. It was originally developed by Alain Marchand to control experiments in Skinner boxes with parallel stimuli, manipulanda and rewards. Whand focuses on the readability of programs. Variables have explicit names and their behavior is entirely described in the variable definition. Here is a short but complete Whand script:
+WHAND aims at being the simplest possible language for programming small automatons. It was originally developed by Alain Marchand to control experiments in Skinner boxes with parallel stimuli (outputs) and  manipulanda (inputs), with a focus on readability.
+A Whand script is NOT a sequence of instructions! It is a set of object definitions that fully describe each object's behavior (typically on/off events). Objects can be defined in any order. They should be given explicit names.
+Here is a short but complete Whand script that reads the state of a lever. Each time the subject (rat/mouse) presses the lever, it will trigger the delivery of a reward:
 
-exit: when start + 15min                   # stop experiment after 15 minutes
-reward: when lever_pressed                 # definition of "reward", a 500 ms pulse
-   until reward + 500ms                    # definition (continued)
-output(1): reward                          # link "reward" to hardware output port 1
-lever_pressed: pin(2)                      # define "lever_pressed", link to hardware input port 2
+exit: when start + 15min                    # definition of "exit": stop experiment after 15 minutes
+reward: when lever_pressed                  # definition of "reward", a 500 ms on/off pulse
+   until reward + 500ms                     # definition of "reward" (continued)
+output(1): reward                           # definition of "output(1)": link "reward" to hardware output port 1
+lever_pressed: pin(2)                       # definition of "lever_pressed": link to hardware input port 2
 
 To set up and test a working version, see WHAND USER MANUAL.docx
 A complete (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
