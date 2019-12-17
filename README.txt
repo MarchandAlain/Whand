@@ -8,7 +8,7 @@ reward: when lever_pressed                  # definition of "reward", a 500 ms o
 output(1): reward                           # definition of "output(1)": link "reward" to hardware output port 1
 lever_pressed: pin(2)                       # definition of "lever_pressed": link to hardware input port 2
 
-For a more complete example, see Commented script in Notepad++ 
+For a more complete example, see Commented script in Notepad++.png 
 Some of the characteristics of Whand are described in Introduction to Whand.ppt
 A full (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
 To set up and test a working version, see WHAND USER MANUAL.docx
