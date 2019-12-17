@@ -1,4 +1,4 @@
-WHAND aims at being the simplest possible language for programming small automatons. It was originally developed by Alain Marchand to control experiments in Skinner boxes with parallel stimuli (outputs) and  manipulanda (inputs), with a focus on readability.
+WHAND aims at being the simplest possible language for programming small automatons. It was originally developed by Alain Marchand to control experiments in conditioning chambers with parallel stimuli (outputs) and  manipulanda (inputs), with a focus on readability.
 A Whand script is NOT a sequence of instructions! It is a set of object definitions that fully describe each object's behavior (typically on/off events). Objects can be defined in any order. They should be given explicit names.
 Here is a short but complete Whand script that reads the state of a lever. Each time the subject (rat/mouse) presses the lever, it will trigger the delivery of a reward:
 
