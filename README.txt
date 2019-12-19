@@ -11,4 +11,4 @@ lever_pressed: pin(2)                       # definition of "lever_pressed": lin
 Some of the characteristics of Whand are described in Introduction to Whand.ppt
 A full (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
 To set up and test a working version, see WHAND USER MANUAL.docx
-Whand is written in Python and is open source. A Python module named whand_drive.py contains all functions that need to be adapted to each type of hardware.
+Whand is written in Python and is open source. A Python module named whand_driver.py contains all functions that need to be adapted to each type of hardware.
