@@ -12,4 +12,4 @@ Some of the characteristics of Whand are described in Introduction to Whand.ppt.
 A full (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
 To set up and test a working version, see WHAND USER MANUAL.docx
 Whand is written in Python and is open source. The Python module named whand_driver.py contains all functions that need to be adapted to each type of hardware.
-Version 2.7 now features a driver to control a Raspberry pi under Linux (Raspbian).
+Version 2.7 now features a driver to control a Raspberry pi under Linux (Raspbian), see whand_for_Raspberry_pi.pdf.
