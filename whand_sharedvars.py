@@ -16,7 +16,8 @@ class spell:
         self.Object_list=[]                 # list of nodes (except temporary), with order preserved
         self.Pinlist=[]                        # list of pin inputs
         self.Namedpinlist={}             # dic of pin input equivvalents 
-        self.Pinstate={}
+        self.Pinstate={}                     # dict from name to input state
+        self.Outlist=[]                       # list of declared outputs
         self.Boxnumber=0                # to run parallel scripts
         self.Nodestore=[]                 # a cyclic list of temporary nodes  
         self.Elements={}                   # a dict of dict elements 
@@ -62,10 +63,11 @@ class spell:
         self.Current_clause="", None, None       
         self.Eval_depth=0
        
-        self.Visible[:]=[]                         # modif following lists 
+        self.Visible[:]=[]                         # modif followng lists 
         self.Nodestore[:]=[]                 # a cyclic list of temporary nodes  
         self.Object_list[:]=[]                 # list of nodes (except temporary), with order preserved
         self.Pinlist[:]=[]                        # list of pin inputs
+        self.Outlist[:]=[]                        # list of pin outputs
         self.Delayed_objects[:]=[]                                  
         self.delayed_list[:]=[]
         self.Active_list=[]                                          

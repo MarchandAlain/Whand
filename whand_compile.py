@@ -48,11 +48,6 @@ def create_defined(sv, prog):
                 if lig.startswith(Equal+Special):                                        
                     lig=lig[len(Equal+Special):]                            # remove equivalence code             
                     isequiv=lines[num+2][len(Col):]                     # equivalent value, two lines down 
-##                    print("xxxx equiv to", lig, "-->", isequiv)
-##                if lig.startswith(Special+Any+Special+Equal+Special):       
-##                    lig=Special+Any+Special+lig[len(Special+Any+Special+Equal+Special):]    
-##                    isequiv=lines[num+2][len(Col):]                     # equivalent name + user-defined function 
-##                    print("xxxx equiv to", lig, "-->", isequiv)
 
 # is it a subscripted name?
                 here, block, last=findblock(lig)                                        # find brackets

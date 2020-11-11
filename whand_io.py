@@ -93,14 +93,14 @@ Legend+="69 :  fin zone gauche\n"
 Legend+="70 :  fin zone droite\n"
 Legend+="99 :  fin séance\n"
 
-Header1="Date version: 	18/04/2017\nDate expérience:\t"
-Header2="Heure expérience:\t"	
-Header3="Expérience dans cage:\t"	
+Header1="Date version:  18/04/2017\nDate expérience:\t"
+Header2="Heure expérience:\t"   
+Header3="Expérience dans cage:\t"   
 Header4="Animal:\t0\nNuméro séance:\t1\nSéance précédente:\t0\n"
-Header4+="Séance suivante:\t0\nGène:\t\nTraitement:\t\nDose:\t\nVoie:\t\n"		
+Header4+="Séance suivante:\t0\nGène:\t\nTraitement:\t\nDose:\t\nVoie:\t\n"      
 Header4+="Solvant:\t\nProduit2:\t\nLésion:\t\nRemarque:\t\nNom fichier données:\t"
-Header5="Nom fichier exercice:\t"	
-Header6="[fin section etiquette]\n\nInstant(s10):	Event1:	Event2:	Event3:"
+Header5="Nom fichier exercice:\t"   
+Header6="[fin section etiquette]\n\nInstant(s10):   Event1: Event2: Event3:"
 
 
 # Global variables required/modified by Whand ===============================
@@ -171,7 +171,16 @@ def initialize(sv, iocodes):                                                    
     Input_state.clear()                                                              # initialize input dictionary
     Codes=iocodes                                                                  # dictionary of i/o codes
     Scriptname=["","","","","","","",""]                                       # list of names of scripts
-    dr.init_hardware()
+    # check input and output numbers
+    try:
+        Pins=[int(pin[len(Pin)+1:-1]) for pin in sv.Pinlist]
+        Outputs=[int(pin[len(Output)+1:-1]) for pin in sv.Outlist]
+    except:
+        print(Err_io_number)
+        print(sv.Pinlist)
+        print(sv.Outlist)
+        raise ReferenceError  
+    dr.init_hardware(Pins, Outputs)
 
 #===================================================== init_interrupts  
 def init_interrupts(sv):
@@ -227,7 +236,7 @@ def initbox(sv, sourcename):                                                  # 
                 ser=str(num)
                 if len(ser)==1: ser="0"+ser
                 fname=os.path.join(Datadir, prefix+ser+"_"+str(box+1)+".e01")
-        elif box==0:                                                                      # ask name
+        elif box==0:                                # ask name
             Filename=""
             ok=False
             while not ok:
@@ -242,6 +251,10 @@ def initbox(sv, sourcename):                                                  # 
                     if answ in ["y", "Y"]: ok=True
             if "\\" in Filename:                                                        # verify or create directory
                 dirname=Filename[:findlast(Filename, "\\")]
+                dirname=os.path.join(Datadir, dirname)
+                os.makedirs(dirname, exist_ok=True)
+            elif "/" in Filename:                                                        # verify or create directory
+                dirname=Filename[:findlast(Filename, "/")]
                 dirname=os.path.join(Datadir, dirname)
                 os.makedirs(dirname, exist_ok=True)
         else:                                                                                  # use provided name
@@ -301,19 +314,19 @@ def header(sv, box):                                                            
     time=("0"+str(localtime().tm_hour))[-2:]+":"+("0"+str(localtime().tm_min))[-2:]+":"+("0"+str(localtime().tm_sec))[-2:]
     res=Mylog[box].name
     script=Scriptname[box]
-    Mylog[box].write(Header1)       ##    Header1="Date version: 	18/04/2017\nDate expérience:\t"
+    Mylog[box].write(Header1)       ##    Header1="Date version:    18/04/2017\nDate expérience:\t"
     Mylog[box].write(date+"\n")
     Mylog[box].write(Header2)       ##    Header2="Heure expérience:\t"
     Mylog[box].write(time+"\n")
-    Mylog[box].write(Header3)       ##    Header3="Expérience dans cage:\t"	
+    Mylog[box].write(Header3)       ##    Header3="Expérience dans cage:\t" 
     Mylog[box].write(str(box+1)+"\n")
     Mylog[box].write(Header4)       ##    Header4="Animal:\t0\nNuméro séance:\t0\nSéance précédente:\t0\n"
-                                                      ##    Header4+="Séance suivante:\t0\nGène:\t\nTraitement:\t\nDose:\t\nVoie:\t\n"		
+                                                      ##    Header4+="Séance suivante:\t0\nGène:\t\nTraitement:\t\nDose:\t\nVoie:\t\n"      
                                                       ##    Header4+="Solvant:\t\nProduit2:\t\nLésion:\t\nRemarque:\t\nNom fichier données:\t"
     Mylog[box].write(res+"\n")
-    Mylog[box].write(Header5)       ##    Header5="Nom fichier exercice:\t"	
+    Mylog[box].write(Header5)       ##    Header5="Nom fichier exercice:\t" 
     Mylog[box].write(script+"\n")
-    Mylog[box].write(Header6+"\n")       ##    Header6="[fin section etiquette]\n\n	Instant(s10):	Event1:	Event2:	Event3:"
+    Mylog[box].write(Header6+"\n")       ##    Header6="[fin section etiquette]\n\n Instant(s10):   Event1: Event2: Event3:"
 
     
 #==============================================================
@@ -497,8 +510,7 @@ def scanpins(sv):                                            # called by readpin
         pinnumber=num-Boxinputs*box
         if pinnumber>0 and pinnumber<=Boxinputs:
             st=False
-            if Hardware==ASi:
-                st=getpin(box, pinnumber)                                 # get current value
+            st=getpin(box, pinnumber)                                 # get current value
             if Simulatepin: st=dr.simulate_one_pin(box, pinnumber, sv.Current_time)
             if Printout:  print("scanpin getpin", box+1, num, pinnumber, st)
             if st!=Input_state[num]:                                            # only store if state has changed
@@ -903,6 +915,18 @@ def input_text():                                                   # required b
         return text
     
 #================================================================
+def readtextfile(fname):                                      # required by Whand
+        """
+        opens specified file, reads and closes it
+        filters line feeds, fuses continued lines, remove comments
+        and returns content as a list of int
+        """
+        file=open(fname,"r")                
+        txt = file. read()
+        file. close()
+        return txt
+    
+#================================================================
 def getscriptlist():                                                # required by Whand
         """
         Select file containing a list of script names 
@@ -970,16 +994,192 @@ def getscriptlist():                                                # required b
         return scriptlist, autotest, Parallel
 
 #================================================================
-def gettextfile(fname):                                      # required by Whand
-        """
-        opens specified file, reads and closes it and returns content as a string
-        """
-        old=open(fname,"r")                
-        tout=old.read()                                    
-        old.close()
-        return tout
+def getbinfile(fname):                                      # required by Whand
+    """
+    opens specified (text) file, reads and converts chars one by one
+    closes file and returns content as a list of int
+    some special chars (e.g. accented) are encoded into two consecutive ints
+    """
+    file=open(fname,"rb")                
+    byte = file. read(1)
+    values=[]
+    while byte:                                           # EOF is not returned
+        values+=[ord(byte)]                          # convert to int
+        byte = file. read(1)
+    file. close()
+    return values
 
 #================================================================
+def no_line_feed(values):                                      # required by Whand
+    """
+    look for line feeds (10) in int list 
+    remove them and return new list
+    if not preceded by CR, replace by CR
+    """
+    li=[]
+    preced=None
+    for byte in values:
+        b=[byte]
+        if byte==10:
+            if preced==13:
+                b=[]
+            else:
+                b=[13]
+        li+=b
+        preced=byte
+    return li
+
+#================================================================
+def fuse_continued_lines(values):                                      # required by Whand
+    """
+    look for continuation char Mline in int list followed by carriage return,
+    with or without intervening spaces and tabs
+    remove continuation chars and return new list with fused lines
+    """
+    li=[]
+    temp=[]
+    escape=False
+##    print(values)
+    for byte in values:
+##        print(byte, chr(byte), temp)
+        b=[byte]
+        if escape:                                                               # after possible continuation
+            if byte==13:
+                temp=[]                                                         # clear buffer to fuse lines
+                li=li[:-1]                                                         # remove Mline char
+                escape=False
+            elif byte==9 or byte==32:                                  # spaces and tabs are allowed
+                temp+=b                                                       # store char in buffer
+            else:                                                                   # not a continued line
+                li+=temp                                                        # use and clear buffer
+                li+=b
+                temp=[]
+                escape=False
+        else:                                                                       # normal text
+            li+=b
+        if byte==ord(Mline):                                               # possible continuation
+            escape=True                                                      
+##    print(li)
+    return li
+
+#================================================================
+def gettextfile(fname):                                      # required by Whand
+        """
+        opens specified file, reads and closes it
+        filters line feeds, fuses continued lines, remove comments
+        and returns content as a list of int
+        """
+        values=getbinfile(fname)
+        values=no_line_feed(values)                                   
+        values=fuse_continued_lines(values)                                   
+        values=no_comment(values)                        # remove comments (n.b. # is not allowed in a string)
+        values=unaccented(values)                          # remove accents except within strings
+        values=printable(values)                              # change tabs to spaces and remove unprintable chars except CR
+        for c in values:
+            if c==ord(Special):                                   # Special char chr(96) is not allowed in script
+                txt=bin_to_text(values)
+                print(txt)
+                print("\n", Err_illegal_special)                                      
+                raise ReferenceError
+        prog=bin_to_text(values)                              # n.b. line feeds are added to CR here
+        return prog
+
+#================================================================
+def no_comment(values):                                             # required by Whand                              
+    """
+    in list of int representing text, remove comments from # to end of line
+    return list of int
+    """
+    li=[]
+    comment=False
+    for byte in values:
+        if byte==ord('#'): comment=True
+        if byte==13: comment=False
+        if not comment: li+=[byte]
+    return li
+
+#================================================================
+def unaccented(values):                                                  # required by Whand                         
+    """
+    in list of int representing text, remove accented chars and ç except within strings
+    return list of int
+    """
+    li=[]
+    instring=False
+    double=[]
+    for byte in values:
+##        print(byte, chr(byte), double)
+        if double:                
+            for x in Accented:                                 # check if convertible
+##                print(byte, ord(x)-64)
+                if double[0]==195 and byte==ord(x)-64:
+                    li+=[ord(Accented[x])]
+                    double=[]
+                    break
+            if double:                                            # not convertible
+                txt=bin_to_text(values)
+                print(txt)
+                print("\n", Err_illegal_char, "\n", double[0], byte, chr(double[0]))                                      
+                raise ReferenceError
+        else: 
+            if byte==ord(Quote): instring=not instring  # detect beginning and end of strings
+            if instring or byte<=127:                      # ordinary char (1 byte)
+                li+=[byte]
+            else:                                                    # first of two bytes
+                double=[byte]
+                for x in Accented:                                 # check if convertible
+                    if double[0]==ord(x):                       # coded on one byte
+                        li+=[ord(Accented[x])]
+                        double=[]
+                        break
+    return li
+
+#================================================================
+def printable(values):                                                      # required by Whand            
+    """
+    in list of int representing text, change tabs to spaces and remove unprintable chars except CR
+    ignore quoted strings
+    return list of int
+    """
+    li=[]
+    instring=False
+    for byte in values:
+##        print(byte, chr(byte))
+        if byte==ord(Quote): instring=not instring  # detect beginning and end of strings
+        if instring or byte==13 or (byte<127 and byte>=32):       # printable
+            li+=[byte]
+        elif byte==9:
+            li+=[32]                                          # convert tab to space
+        else:                                                    # non printable
+            print("\n", Err_illegal_char, "\n", byte)                                      
+            raise ReferenceError      
+    return li
+
+#===================================================== to_text  
+def bin_to_text(prog):                                                 # required by Whand
+    """
+    convert list of int to text
+    """
+    txt=""
+    double=[]
+    for byte in prog:
+##        print(byte, chr(byte))
+        if double:                          # special chars on two bytes
+##            print(double[0], byte)
+            if double[0]==194:
+                txt+=chr(byte-7)
+            elif double[0]==195:
+                txt+=chr(64+byte)
+            double=[]
+        elif byte<=127:
+            txt+=chr(byte)
+            if byte==13: txt+=chr(10)  # add line feed to print
+        else:
+            double=[byte]
+    if prog and byte!=13: txt+=chr(13)+chr(10)
+    return txt
+
+ #================================================================
 def opentextfile(fname, RAZ=False):                                 # required by Whand
         """
         opens file to append or overwrite 
@@ -1167,7 +1367,7 @@ def controlled_proba(args):
 
     # Generate blocks
     whole=[]
-    proba=block_ones/block_size                # probability of 1s is matched to required frequency
+    proba=float(block_ones)/block_size                # probability of 1s is matched to required frequency
     for i in range(nb_blocks):                       # multiple blocks
         ok=False                                           # flag for a valid block
         while not ok:                                     # try to construct a valid block
@@ -1187,5 +1387,8 @@ def controlled_proba(args):
                 lastseq1=seq1                           # update end of block sequence
         whole+=list(block)                            # concatenate blocks while controlling sequence at the junction
     return whole
-        
-            
+
+ ###===================================================== main
+if __name__== "__main__":
+    li=gettextfile("../scripts/essai.txt")
+    print(li)

@@ -5,7 +5,7 @@ This is the options and parameters module.
 """
 # system =====================================================
 Pywin=False                                     # True when running under Windows
-Nosave= True                     # set to False to record event data
+Nosave= True                                   # set to False to record event data
 Printout= False    # True                    # display message when i/o change
 
 # timing constants ===============================================
@@ -15,9 +15,9 @@ Timestep=.05                                    # display refresh period (second
 # I/O options ====================================================
 ASi="ASi"
 Raspy="Raspy"
-Hardware= None #Raspy #ASi                                                      # ASi for Imetronic or None
-Boxes=8                                                                             # number of parallel setups  
-Boxinputs=12                                                                     # for input with multiple parallel scripts
+Hardware= Raspy #ASi                                                      # ASi for Imetronic or None
+Boxes=1                                                                             # number of parallel setups  
+Boxinputs=27                                                                     # for input with multiple parallel scripts
 Online_save= False    # True                                              # record data online or when finished
 Autoname=False                                                                # automatic naming of result files
 Use_interrupts=False                                                          # allow interruptions on pin inputs

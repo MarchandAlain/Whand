@@ -6,7 +6,8 @@ Keywords are defined to prevent misspelling
 and to allow change in syntax if needed
 """
 # Reserved character and special codes
-Special="§"
+Special=chr(96)   # inverted single quote
+Accented={'é':'e', 'è':'e', 'ê':'e', 'à':'a', 'ù':'u', 'ü':'u', 'ï':'i', 'î':'i', 'ô':'o', 'ç':'c'}
 Definition=Special+"Name"+Special
 Chain="Chain"
 Bloc="Bloc"
@@ -236,6 +237,7 @@ Anom_illegal_dict_val="*** Anomaly: illegal dict value ***"
 # precompile
 Anom_string_key="*** String anomaly ***"
 Err_illegal_special="*** Illegal character in program: "+ Special +" ***"
+Err_illegal_char="*** Illegal character in program ***"
 Err_empty_prog="*** Error: program script is empty ***"
 Err_unfinished_string="*** Error: End of File encountered while parsing string ***"
 Err_syntax="*** Syntax error ***"
@@ -273,7 +275,7 @@ Label_global_fast="     Global FAST    "
 Label_global_slow="     Global SLOW    "
 Label_global_stop="     Global stop    "
 Label_restart="    New session    "
-Label_start="press 'Start' when ready "
+Label_start="press Start when ready "
 Label_pause_quit="   Pause/Quit   "
 Label_resume="Resume"
 Label_closed=" Ended "
@@ -329,6 +331,7 @@ Err_yoked="*** Error: invalid yoke master number ***"
 Err_abort="\n---  PROCESS ABORTED  ---"
 Press_enter="\n>> Press Enter to quit"
 # io
+Err_io_number="\n*** Error in input or output number ***"
 Err_config="\n*** Configuration error ***"
 Err_create="\n*** Unable to create"
 Prompt_script_list="Select file containing script list (Ctrl-C to finish) ? "
@@ -490,19 +493,3 @@ Tkinter_colors= ["alice blue", "AliceBlue", "antique white", "AntiqueWhite", \
  "wheat1", "wheat2", "wheat3", "wheat4", "white", \
  "white smoke", "WhiteSmoke", "yellow", "yellow green", "yellow1", \
  "yellow2", "yellow3", "yellow4", "YellowGreen"]
-
-def remove_accented(prog):              
-    """
-    change accented characters to unaccented
-    """
-    res=prog.replace('é', 'e')
-    res=res.replace('è', 'e')
-    res=res.replace('ê', 'e')
-    res=res.replace('à', 'a')
-    res=res.replace('ù', 'u')
-    res=res.replace('ü', 'u')
-    res=res.replace('ï', 'i')
-    res=res.replace('î', 'i')
-    res=res.replace('ô', 'o')
-    return res
-

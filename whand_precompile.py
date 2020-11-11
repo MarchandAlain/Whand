@@ -8,110 +8,101 @@ import whand_io as io                  #  I/O module for drivers. Required for i
 import whand_sharedvars as sp    # for tests
 
 #===================================================== prepare
-def prepare(sv,prog):
+def prepare(sv, prog):
     """
-    prepare and cleanup program:
-    add includes, remove comments, protect strings
+    prepare and cleanup program read as a list of int:
+    add includes, protect strings
     check tabs, spaces and double quotes
     returns full text
+    n.b. chars are filtered, comments removed and lines fused in whand_io gettextfile
     """
     verbose=('prp' in Debog)                         # used to print debugging info
-##    print([(c,ord(c)) for c in prog])
-    if Special in prog:                                          # Special char § is not allowed in script
-        prog=prog.replace(Special, "c")           # because of ç
-##       print(prog)
-##        print("\n", Err_illegal_special)                                      
-##        raise ReferenceError
+    done=False
+    prog=chr(13)+chr(10)+prog                     # to detect includes on first line
+    while not done:
+        done=True
+##        print(prog)
+        prog.strip(Space)                                                    # remove leading spaces
+        prog=changeall(prog, Space+Crlf,Crlf)                    # remove trailing spaces in lines
+        prog=changeall(prog, Crlf+Space,Crlf)                    # remove leading spaces in lines
+        lines=[l for l in prog.split(Crlf) if l!="" and l!=Space] # remove empty lines
+        prog=Crlf.join(lines)+Crlf                                         # rebuild prog
 
-    # comments, includes and continued lines
-    prog=nocomment(prog)                              # remove comments (and commented out includes)
-    prog=changeall(prog, Tab, Space)               # replace tabs with spaces
-    prog=changeall(prog, Mline+Space, Mline) # cleanup continued lines                      
-    prog=prog.replace(Mline+Crlf, "")                # fuse continued lines                      
-    prog=substitute_includes(sv, prog)              # substitute includes (also applies the previous changes to each include)
-
-    # cleanup format
-    prog=remove_accented(prog)                                # convert accented characters 
-    prog=prog.replace(Lf,'')                                          # remove line feeds (leave only carriage returns)
-    prog.strip(Space)                                                    # remove leading spaces
-    prog=changeall(prog, Space+Crlf,Crlf)                   # remove trailing spaces in lines
-    prog=changeall(prog, Crlf+Space,Crlf)                   # remove leading spaces in lines
-    prog=allowed_chars(prog)                                      # remove special characters v2.603
-    lines=[l for l in prog.split(Crlf) if l!="" and l!=Space] # remove empty lines
-    prog=Crlf.join(lines)+Crlf                                         # rebuild prog
-
-    # check number of quotes  
-    for lig in lines:
-        if not checkbalance(lig, Quote, Quote):
-            print("\n", Err_unbalanced_quotes)              # Fatal error: unbalanced quotes
-            print(lig)
-            raise ReferenceError
-
-    prog=savestrings(sv, prog)   # replace strings with a key for protection (keywords inside strings must not be parsed)
-
-    # check number of brackets   
-    for lig in prog.split(Crlf):
-        if not checkbalance(lig, Obr, Cbr):
-            print("\n", Err_unbalanced_brackets)              # Fatal error: unbalanced brackets
-            print(lig)
-            raise ReferenceError
+        # check number of quotes and save strings
+        for lig in lines:
+            if not checkbalance(lig, Quote, Quote):
+                print("\n", Err_unbalanced_quotes)              # Fatal error: unbalanced quotes
+                print(lig)
+                raise ReferenceError
+        prog=savestrings(sv, prog)   # replace strings with a key for protection (keywords inside strings must not be parsed)
+                                                   # code is storage key, e.g.  §Chain3§ and dict sv.Strings[code] is string content 
+        
+        # check number of brackets   
+        for lig in prog.split(Crlf):
+            if not checkbalance(lig, Obr, Cbr):
+                print("\n", Err_unbalanced_brackets)              # Fatal error: unbalanced brackets
+                print(lig)
+                raise ReferenceError
+            
+        prog=prog.replace(Lf,'')                                          # remove line feeds (leave only carriage returns)
+        prog=changeall(prog, Space+Space, Space)           # remove multiple spaces (outside strings)
+        prog2=substitute_includes(sv, prog)                       # substitute includes once and cleanup again
+        if prog2!=prog:
+            done=False
+            prog=prog2
         
     # check that there is a program    
-    prog=changeall(prog, Space+Space, Space)           # remove multiple spaces (outside strings)
     if len(prog.replace(Tab,'').replace(Space,'').replace(Crlf,''))<2: 
         print("\n", Err_empty_prog)                                # Fatal error: program script is empty                                  
         raise ReferenceError
 
     return prog
-
+   
 #===================================================== substitute_includes  
 def substitute_includes(sv, prog):           
     """
-    insert file content to replace include line. Following syntaxes are allowed:
-    include(my_module.txt)        include("my_module.txt")
+    insert file content to replace include line. Followng syntaxes are allowed:
+    include(my_module.txt)       include("my_module.txt")
     include my_module.txt        include "my_module.txt"
+    include (my_module.txt)      include ("my_module.txt")
     returns full text
-    """  
-    prog=changeall(prog, Include+Space+Obr, Include+Obr)  # remove extra spaces
-    done=False
-    while Include in prog and not done:
-        done=True
-        for osep,csep in [(Obr, Cbr),(Space, Crlf)]:      # look for includes
-            while Include+osep in prog:
-                done=False
-                here=prog.find(Include+osep) 
-                there=prog.find(csep, here+1)
-                if there==-1:                                           # no closing separator
-                    print("\n", Err_syntax)                         # Fatal error: no ending separator                                   
-                    raise ReferenceError
-                
-                eol=prog.find(Crlf, here+1)                    # find end of line
-                if eol==-1: eol=len(prog)+1
-                line=prog[here:eol]                                # line containing the include
-                txt=line.strip(Space)+Crlf                       # check length 
-                if osep==Obr and here+len(txt)-2!=there:                 
+    """
+    for osep,csep in [(Space, Crlf),(Obr, Cbr)]:      # look for includes
+        here=prog.find(Crlf+Include+osep)
+        if here>-1:
+            there=prog.find(csep, here+1)
+            if there==-1:                                           # no closing separator
+                print("\n", Err_syntax)                         # Fatal error: no ending separator                                   
+                raise ReferenceError
+            
+            eol=prog.find(Crlf, here+1)                    # find end of line
+            if eol==-1: eol=len(prog)+1
+            line=prog[here:eol].strip(Space)              # line containing the include
+            txt=line
+            if osep==Obr:
+                txt=line[:-1]
+                if here+len(txt)!=there:                        # check length
                         print("\n", Err_syntax_extra_chars) # Fatal error: illegal characters at end of line                                   
                         print(line)
                         raise ReferenceError
 
-                name=txt[len(Include+osep):-len(csep)]        # remove separators
-                if csep!=Crlf: name=name[:-1]
-                name=noquotes(name.strip(Space))              # file name
-                name=addparentdir(name)                            # add path
-                changeall(name, Space+Space, Space)          # remove multiple spaces
-                newlines=""
-                try:
-                    newlines=io.gettextfile(name)+Crlf           # read include file using whand_io module
+            name=txt[len(Crlf+Include+osep):]        
+            if name.startswith(Obr): name=name[1:]
+            if name.endswith(Cbr): name=name[:-1]
+            name=name.strip(Space)
+            if name.startswith(Special+Chain): name=sv.Strings[name[1:-1]]
+            name=addparentdir(name)                            # add path
+##            print(name)
+            newlines=""
+            try:
+                newlines=io.gettextfile(name)                  # read include file using whand_io module
 
-                except IOError:
-                    print(Err_404)                                            # Fatal error: File not found
-                    print(str([name])[1:-1])                             # display all chars
-                    raise ReferenceError
-                
-                prog=nocomment(prog.replace(line, newlines))   # remove comments (and commented out includes)
-                prog=changeall(prog, Tab, Space)               # replace tabs with spaces
-                prog=changeall(prog, Mline+Space, Mline) # cleanup continued lines                      
-                prog=prog.replace(Mline+Crlf, Space)         # fuse continued lines                   
+            except IOError:
+                print(Err_404)                                            # Fatal error: File not found
+                print(str([name])[1:-1])                             # display all chars
+                raise ReferenceError
+
+            prog=prog.replace(line[1:], newlines)            # keep initial Crlf
     return prog
     
 #===================================================== canonic
@@ -302,26 +293,26 @@ def adjust_names(sv, text):
 ##    print("xxxx precompile text", text)
     return text
 
-#===================================================== nocomment
-def allowed_chars(prog):
-    """
-    remove non printable characters v2.603
-    """
-    ascii_range=string.printable
-    text=""
-    for c in prog:
-        if c in ascii_range: text+=c
-    return text
-
-#===================================================== nocomment
-def nocomment(prog):
-    """
-    remove comments using regular expressions
-    """
-    mask=re.compile("#.*")                                                             # from # to end of line                           
-    comments=mask.findall(prog)                                                  # find comments
-    return mask.sub("",prog)
-
+###===================================================== allowed_chars
+##def allowed_chars(prog):
+##    """
+##    remove non printable characters v2.603
+##    """
+##    ascii_range=string.printable
+##    text=""
+##    for c in prog:
+##        if c in ascii_range: text+=c
+##    return text
+##
+###===================================================== nocomment
+##def nocomment(prog):
+##    """
+##    remove comments using regular expressions
+##    """
+##    mask=re.compile("#.*")                                                             # from # to end of line                           
+##    comments=mask.findall(prog)                                                  # find comments
+##    return mask.sub("",prog)
+##
 #===================================================== alphachange
 def alphachange(prog, old, new):
     """
@@ -369,8 +360,9 @@ def savestrings(sv, prog):
             raise ReferenceError
         count+=1
         code=Chain+str(count)                                       # storage key, e.g.  §Chain3§
-        sv.Strings[code]=prog[here+1:there]                  # save string in a dictionary
+        sv.Strings[code]=prog[here+1:there]                    # save string in a dictionary 
         prog=prog[:here]+Special+code+Special+prog[there+1:]  # replace with storage key
+##        print(sv.Strings.values())
     return prog
 
 #====================================================================== hideshowunused
@@ -401,8 +393,8 @@ def hideshowunused(sv, text):
 #====================================================================== precompile
 def precompile(sv, prog):
     """
-    Precompile Whand script:
-    cleanup, develop abbreviated syntax
+    Precompile Whand script read as a list of int
+    re-convert to text, cleanup, develop abbreviated syntax
     and convert to canonic form 'name: when condition: value'
     returns full text (no actual parsing)
     """
@@ -428,19 +420,18 @@ def precompile(sv, prog):
 if __name__== "__main__":
     sv=sp.spell()
     try:
-        old=open("..\scripts\essai.txt","r")   # try precompiling a script and print result            
+        name="..\scripts\essai.txt"   # try precompiling a script and print result            
  #       old=open("..\scripts\essai.txt","r", encoding="ascii", errors="surrogateescape")   # try precompiling a script and print result            
-        tout=old.read()+Crlf                         
-        old.close()
+        tout=io.gettextfile(name)
         prog=precompile(sv, tout)
-        print(prog)
-        print(Crlf+"============================================"+Crlf)
-        
-        prog=prog.replace(Crlf+When, Crlf+"    "+When)
-        prog=prog.replace(Crlf+Col, Col+Space)
-##        prog=prog.replace(Special+Any+Special, "function ")  # additional information in result
-        prog=prog.replace(Equal+Special, "synonym ")            # additional information in result
-        print(prog)
+##        print(prog)
+##        print(Crlf+"============================================"+Crlf)
+##        
+##        prog=prog.replace(Crlf+When, Crlf+"    "+When)
+##        prog=prog.replace(Crlf+Col, Col+Space)
+####        prog=prog.replace(Special+Any+Special, "function ")  # additional information in result
+##        prog=prog.replace(Equal+Special, "synonym ")            # additional information in result
+##        print(prog)
 
     except ReferenceError:
         print("\n---  PROCESS ABORTED  ---")

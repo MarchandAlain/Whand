@@ -231,7 +231,7 @@ def indprint(*li):
     """
     print with indentation
     """
-    print("     ", *li)
+    print("     ", " ".join(map(str, li)))
     
 #===================================================== root
 def root(text):
@@ -475,7 +475,7 @@ def addparentdir(name):
     """
     verifies if name refers to parent directory '..\' and returns appropriate name         
     """
-    if name.startswith("..\\"): return os.path.join(os.pardir, name[3:])          
+    if name.startswith("..\\") or name.startswith("../"): return os.path.join(os.pardir, name[3:])          
     return name
 
 #===================================================== logic
@@ -556,7 +556,8 @@ def setstatus(nod, st, time):
 ###===================================================== main
 if __name__== "__main__":
 ##    print (findblock(' anything " )((xx" (findblock test: (19 and 54) is ok) "azerty" '))
-    print(splitlist('aha(1),"a,b,c",x("alpha",5)(2), def, "g()", h'))
+##    print(splitlist('aha(1),"a,b,c",x("alpha",5)(2), def, "g()", h'))
+    indprint(*range(5))
 
 
 

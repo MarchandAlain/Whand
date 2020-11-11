@@ -677,7 +677,7 @@ def operation(sv, O, v1, v2):
             for i, evt in enumerate(v1):                
                 occ=sv.Object[v1[i]].occur                           # occurrences of event
                 if len(occ)>v1.count(evt):                             # more occurrences should not
-                    for ti in occ[:-v1.count(evt)]:                    #  occur in window
+                    for ti in occ[:-v1.count(evt)]:                    #  occur in wndow
                         if ti>tim[0] and ti<tim[-1]: return False
         tim2=tim[:]
         tim2.sort()
@@ -997,7 +997,7 @@ def operation(sv, O, v1, v2):
         v1=noquotes(v1)                                             # remove quotes from filename
         v1=addparentdir(v1)                                       # complete path        
         try:
-            brut=io.gettextfile(v1)                    
+            brut=io.readtextfile(v1)                    
         except IOError:                                                # error opening or reading file
             print("\n", Err_404, str(v1), "\n")                                    
             raise ReferenceError

@@ -15,7 +15,7 @@ class Node:
     def __init__(self):
         """
         Definition of data structure and default values
-        Values may have one of the following nature:
+        Values may have one of the followng nature:
         Bln: true/false (Boolean). Initialized to false unless otherwise specified
         Nmbr: any floating point or integer value (number). Initialized to zero unless otherwise specified
         Drtn: a number followed by some time unit (duration). Internally converted to seconds (see function seconds)

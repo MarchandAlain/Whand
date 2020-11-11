@@ -3,8 +3,6 @@ import whand_io as io
 from whand_parameters import * # options, constants
 from whand_operators import *   # module only contains constants
 from whand_tools import *          # useful procedures only
-from win32api import GetSystemMetrics  # for screen size
-
 try:
     try:                                              # name changed in Python 3
         from tkinter import *            # from... import is recommended by doc
@@ -13,8 +11,7 @@ try:
 except:
     raise ImportError('Tk wrapper not available')
 
-Screen_width = GetSystemMetrics(0)
-Screen_height = GetSystemMetrics(1)
+Screen_width = 1300                 # for labels only. Actual screen size is determined later in makebox
 PFColor=PinFalseColor if Speed_factor==1 else PinFastColor if Speed_factor>1 else PinSlowColor
 LabelGS=Label_global_start if Speed_factor==1 else Label_global_fast if Speed_factor>1 else Label_global_slow
 
@@ -83,14 +80,19 @@ class Supervisor(Frame):
         startlist=[x for x in svlist if x.Boxnumber+1 in svlist[box-1].masterto]
         for sv in startlist:
             sv.interface.bouton_start["text"] =Label_closed
+            sv.interface.bouton_start["bg"] = FalseColor                # appearance of start button
+            sv.interface.bouton_quitter["bg"] = FalseColor
             sv.interface.pause=True
             if not sv.interface.closed: sv.interface.finish(self, sv, svlist)
             
     def global_stop(self, fenetre, svlist):
         """ stop all running programs"""
         print ("\n***" + Label_global_stop + "***")
+        self.bouton_start["bg"] = FalseColor                # appearance of global start button
         for sv in svlist:
             sv.interface.bouton_start["text"] =Label_closed
+            sv.interface.bouton_start["bg"] = FalseColor
+            sv.interface.bouton_quitter["bg"] = FalseColor
             sv.interface.pause=True
             if not sv.interface.closed: sv.interface.finish(self, sv, svlist)       # not just a pause
         fenetre.protocol("WM_DELETE_WINDOW", fenetre.destroy)         # allow direct window closure
@@ -194,8 +196,8 @@ class Interface(Frame):
                 nt=getnature(sv, elt)
                 elt=self.formatting(sv, nt, elt)
                 vlu+=str(elt)+","
-            if l<=4: vlu=vlu[:-1]         # remove final comma
-            if l>4: vlu=vlu+["..."]       # shorten list values
+            if len(cop)<=4 and l>0: vlu=vlu[:-1]         # remove final comma
+            if len(cop)>4: vlu=vlu+["..."]       # shorten list values
             vlu=vlu+Cbr
         if nat==Drtn and type(vlu)==str:                                                       # format durations
             vlu=float(vlu[:-1])
@@ -259,6 +261,7 @@ class Interface(Frame):
             self.bouton_cliquer[element]["fg"] = fgcolor
 
     def go(self, supervisor, sv, svlist):                           # (re)start program
+        self.bouton_start["bg"] = FalseColor                   # appearance of start button
         if sv.Current_time==0:                                        #  initialize at start
             io.run(sv)                                                   
             rt.init_outputs(sv)
@@ -269,7 +272,6 @@ class Interface(Frame):
                 self.pause=False
                 sv.t0=io.clock()*Speed_factor-sv.Current_time+Epsilon_time  # adjust clock with delay  
                 print(Warn_resume)            
-            self.bouton_start["bg"] = FalseColor              # appearance of start button
             for element in sv.Visible:                                # update display before starting
                 self.update(sv, element)
             self.suite(sv, supervisor, svlist)
@@ -361,6 +363,8 @@ def protect():                                                 # do not allow cl
 #===================================================== makebox  
 def makebox(svlist, autotest):                                                # configure and display interface
     fenetre = Tk()
+    Screen_width = fenetre.winfo_screenwidth()
+    Screen_height = fenetre.winfo_screenheight()
     fenetre.protocol('WM_DELETE_WINDOW', protect)          #  do not allow direct window closure
     cadre = Framing(fenetre)                                                  #        fenetre = Tk()
     geom=str(Screen_width-Width_margin)+"x"+str(Screen_height-Height_margin)+Window_position
