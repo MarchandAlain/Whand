@@ -3,6 +3,7 @@ from whand_parameters import *   # options, constants
 from whand_tools import *
 import whand_precompile as pc
 import whand_sharedvars as sp    # for tests
+import whand_io as io   # for tests
 
 #==================== precompile section was working on text. Now program becomes a tree
 #===================================================== predefined
@@ -727,6 +728,7 @@ def treepluck(sv, tree):
     li=[]                                                                                                    # remove duplicates (the hard way)
     for i, r in enumerate(res): 
         if not r in res[i+1:]: li.append(r)                                                     # there may be unhashable terms
+    if verbose: print("                 ", li)
     return li                                                                                             
 
 #===================================================== make_args_local
@@ -833,7 +835,7 @@ def make_local(sv, userfunc):
     create local objects and link local references   
     """
     verbose='loc' in Debog
-##    print("userfunc", userfunc)
+    if verbose: print("userfunc", userfunc)
     nom=userfunc[0][0]
     li=userfunc[-1][-1]
     sv.Object[nom].clauses[0]=((Start, None, None), (Comma, li, None))  # create list of localargs (needed for getargs)
@@ -846,7 +848,8 @@ def make_local(sv, userfunc):
         for i, (c,v) in enumerate(sv.Object[expr].clauses): # new clauses
             k=substitute(c, argus, localargs)                   # modify all names in condition
             w=substitute(v, argus, localargs)                  # modify all names in value
-            sv.Object[localexpr].clauses+=[(k,w)]           # add this clause 
+            sv.Object[localexpr].clauses+=[(k,w)]           # add this clause
+            if verbose: print("Adding clause", (k,w))
         sv.Object[localexpr].isuserdef=True                 # mark this object for later destruction
 
     for funcname, expr, localexpr, argus, localargs, li in userfunc:
@@ -891,13 +894,16 @@ def solve_user_calls(sv, tree=All, userlist=[]):
             for fun in userlist:                                                                           # look for user function name
                 if applied(expr, fun):                                                                   # expr is a user function call
                     localargs, localexpr, accessories=getargs(sv, fun)                  # get virtual args and name of user function
-
+                    if verbose:
+                        print("localargs", localargs)
+                        print("localexpr", localexpr)
                     # unify arguments (localargs : virtual, argnames : real)
                     argnames=[tree[1]]                                                                # value or expression
                     if verbose:
                         print('tree:', tree)
                     if tree[1][0]==Comma and len(localargs)>1:                          # virtual arg is a single list
                         argnames=tree[1][1]                                                           # split the list
+                    argnames=list(argnames)                                                     # make sure it is a copy and not the original within tree
                     funcargs=localargs[:-len(accessories)] if accessories else localargs[:]
 ##                    funcargs=[x for x in localargs if not isprime(x[0])]     # virtual args, excluding accessory variables
                     if len(funcargs)!=len(argnames) and len(funcargs)!=1:           # check number of args
@@ -909,16 +915,15 @@ def solve_user_calls(sv, tree=All, userlist=[]):
                         # create accessory variables
                         realargs=[expr]
                         for acc in accessories:
-##                            print("acc", acc)
                             realacc=treejoin(tree)
                             realacc=realacc.replace(Obr, Dot)
-                            realacc=realacc.replace(Cbr, Dot)
+                            realacc=realacc.replace(Cbr, "")
                             realacc=realacc.replace(Comma, Dot)
                             realacc+=acc[len(fun)+1:]
                             if verbose: print('creating:', realacc)
                             add_object(sv, realacc)                                                    # create object for text list of local args 
                             nd.copynode(sv.Object[acc], sv.Object[realacc])             # copy object attributes
-                            argnames+=[(realacc, None, None)]
+                            argnames+=[(realacc, None, None)]                            
                             realargs+=[realacc]
                         if verbose:
                            print('accessories:', accessories)
@@ -936,7 +941,7 @@ def solve_user_calls(sv, tree=All, userlist=[]):
                                 c=substitute(cond,localargs,argnames)
                                 v=substitute(vlu,localargs,argnames)
                                 newclauselist.append((c,v))
-                            nod.clauses=newclauselist                
+                            nod.clauses=newclauselist
                             nod.isnew=False                                                                   # forbid expression processing
                             nod.issolved=True                                                                # avoid reprocessing name
                             nod.isdefined=True                                                              # apparently needed later (runtime?): could try issolved instead
@@ -949,12 +954,13 @@ def solve_user_calls(sv, tree=All, userlist=[]):
                             causelist=[]
                             for c,v in newclauselist:                                                         # look for more 
                                 causelist+=treepluck(sv, c)+treepluck(sv, v)                    # make a list of immediate causes
-                            if verbose: print("causelist", causelist)
+                            if verbose:
+                                 print("causelist", causelist)                            
                             for cau in causelist:                                                               # n.b. there may be duplicates 
                                 expr=treejoin(cau)
                                 if not(expr in sv.Object and (sv.Object[expr].issolved or sv.Object[expr].isuserdef)):
                                     if verbose: print("now solving", cau)
-                                    solve_user_calls(sv, cau, userlist)                # recurse to analyze each object               
+                                    solve_user_calls(sv, cau, userlist)                # recurse to analyze each object
                         break                                                                                        # function name found: break loop
         if tree and (tree[1] or tree[2]):                                                              # process tree branches
             if tree[0]==Comma:
@@ -962,7 +968,7 @@ def solve_user_calls(sv, tree=All, userlist=[]):
                     solve_user_calls(sv, t, userlist)                                # recurse to analyze each list element
             else:
                 solve_user_calls(sv, tree[1], userlist)                           # recurse to analyze each branch  
-                solve_user_calls(sv, tree[2], userlist)            
+                solve_user_calls(sv, tree[2], userlist)
 
 #===================================================== substitute
 def substitute(tree, oldlist, newlist):
@@ -1345,6 +1351,7 @@ def relations(sv):
 
     for eff in sv.Object_list:
         nod=sv.Object[eff]
+        if verbose: print(nod.name)
         for nom in nod.causes:                             # look for nodes of causes
             if not nom in sv.Object:
                 print(Err_unknown_object)
@@ -1872,9 +1879,7 @@ if __name__== "__main__":
     sv=sp.spell()
     Debog="nto"    
     try:
-        old=open("..\scripts\essai.txt","r")                   # try precompiling a script and print result            
-        tout=old.read()+Crlf                         
-        old.close()
+        tout=io.gettextfile("..\scripts\essai.txt")                   # try precompiling a script and print result            
         print(tout, "============================================\n")
         prog=pc.precompile(sv, tout)
         print(prog, "\n\n============================================")     
