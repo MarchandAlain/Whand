@@ -67,33 +67,47 @@ class Node:
         text+=" changed at "+ str(self.lastchange)
         return text
         
-# -------------------------------------------------------------------------------------------- copynode
-def copynode(nod,dup):
+    # -------------------------------------------------------------------------------------------- dump
+    def dump(self):
+        """
+        displays node content
+        """
+        print("\n"+self.name, "  ===========")
+        print(self.content())
+        for attr in dir(self):
+            if not attr.startswith("__"):
+                print(attr, Col, getattr(self, attr))
+
+# -------------------------------------------------------------------------------------------- copy_node
+def copy_node(sv, nom, dup):
     """
     makes dup identical to nod (dup must already exist)
     lists are copied by value not by ref
     """
-##    nom=dup.name
-    for attr in Attributelist:
-        if attr!= Name:                                   
-            x=getattr(nod, attr)
-            y=x if type(x)!=list else x[:]                    #make a copy by value
-            setattr(dup, attr, y)
-##    dup.name=nom
-    return dup
+    if nom in sv.Object:
+        nod=sv.Object[nom]
+        for attr in Attributelist:
+            if attr!=Name:                                   
+                x=getattr(nod, attr)
+                y=x if type(x)!=list else x[:]                    #make a copy by value
+                setattr(dup, attr, y)
 
-# -------------------------------------------------------------------------------------------- copynode2
-def copynode2(nod,dup):
+# -------------------------------------------------------------------------------------------- copy_node2
+def copy_node2(sv, nom, dup):
     """
     copies only essential elements of nod into dup (faster)
     """
-    x=nod.value
-    dup.value=x if type(x)!=list else x[:]
-    dup.lastchange=nod.lastchange          
-    dup.nature=nod.nature[:]
-    dup.isdelayed=nod.isdelayed               
-    dup.occur=nod.occur[:]
-    dup.pointer=nod.pointer
-    dup.count=nod.count
-    return dup
+    if nom in sv.Object:
+        nod=sv.Object[nom]
+        x=nod.value
+        dup.value=x if type(x)!=list else x[:]
+        dup.lastchange=nod.lastchange          
+        dup.nature=nod.nature[:]
+        dup.isdelayed=nod.isdelayed               
+        dup.occur=nod.occur[:]
+        dup.pointer=nod.pointer
+        dup.count=nod.count
+
+
+
 

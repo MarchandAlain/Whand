@@ -15,61 +15,78 @@ Garde="Keep"
 
 # global constants  (with Capital in name)
 When, Until, And, Or, Find, Listfind, Isin, Within, Is, Isnot, Plus, Minus, Mult, Div, Equal, Nequal, Greater, Smaller, Grequal, Smequal, \
-                      Order, Sequence, Col, Obr, Cbr, Crlf, Lf, Space, Tabul, Underscore, Tab, Mline, Comma, Quote, Dot, Prime\
+                      Order, Sequence, Col, Obr, Cbr, Crlf, Lf, Space, Tabul, Underscore, Tab, Mline, Comma, Quote, Dot, Prime, Hash\
           =  "when", "until", "and", "or", "find", "listfind", "isin", "within", "is", "isnot", "+", "-", "*", "/", "=", "!=", ">", "<", \
-                       ">=", "<=", "order", "sequence", ":", "(", ")","\n", "\r", " ", "    ", "_", "\t", chr(92), ",",'"',".", "'"  
+                       ">=", "<=", "order", "sequence", ":", "(", ")","\n", "\r", " ", "    ", "_", "\t", chr(92), ",",'"',".", "'", "#" 
 Vrai, Faux, Always, Epsilon, Empty, Add, Value, Name, Pin, Key, Output, Display, Touch, Dialog, Start, Exit, \
                   Cumul, Steps, Sqrt, Intg, Absv, Load, Store, Image, Have, Pointer, Text, Call, Close, Print, Screen, Be \
         ="true","false", Special+"always", "epsilon", "empty", "add", "value", "name", "pin", "key", "output", \
                 "display", "touch", "dialog", "start", "exit", "cumul", "steps", "sqrt", "intg", "absv", "load", "store", \
                  "image", "have", "pointer", "text", "call", "close", "print", "screen", "be"
 Not, Any, All, Next, Pick, Begin, End, To, Inter, Change, Lastchange, Count, Since, Lasted, Occur, \
-     Ramp, Sort, Proba, Idem, Measure, Command, Read, Write, Match, Hasvalue, Controlpanel \
+     Ramp, Sort, Proba, Old, Measure, Command, Read, Write, Match, Hasvalue, Controlpanel \
          ="not", "any", "all", "next", "pick", "begin", "end", "to", "inter", "change", "lastchange", "count", "since", "lasted", "occur", \
          "ramp", "sort", "proba", "old", "measure", "command", "read", "write", "match", "hasvalue", "controlpanel"
-Logd, Powr, Shuffle, Alea, Ewent, Number, Time, Delay, State, List, Hide, Show, Include, Unused \
-        = "logd", "powr", "shuffle", "alea", "event", "number", "time", "delay", "state", "list","hide", "show", "include", "unused"                                         
-Timeis, Dayis, Dateis, Weekis="timeis", "dayis", "dateis", "weekis"  
+Logd, Powr, Shuffle, Alea, Itis, Ewent, Number, Time, Delay, State, List, Blind, Show, Include, Unused \
+        = "logd", "powr", "shuffle", "alea", "itis", "event", "number", "time", "delay", "state", "list","blind", "show", "include", "unused"                                         
 Wday=["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]         
 Month=["january", "february", "march", "april", "may", "june", "july", \
              "august","september", "october", "november", "december"]         
-Mndays=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]         
+Mndays=[31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]         
 
 Time_is, Day_is, Date_is, Week_is="time is", "day is", "date is", "week is"  
 Is_in="is in"                                             
-Is_not="is not"                                        
-End_when=End+Space+When                 
+Is_not="is not"
+It_is="it is"
 Starttree=(Start, None, None)
 Begintrue=Begin+Obr+Vrai+Cbr
 Store_screen=Store+Obr+Screen+Cbr
 WFalse=When+Space+Faux+Col
+IsEmpty="is "+Empty
+MatchEmpty=Match+Space+Empty
 
 # Synonyms
-Alphachangelist=[(Is_in, Isin),(Is_not, Isnot), (End_when, Until),(Time_is, Timeis),(Day_is, Dayis),(Date_is, Dateis),(Week_is, Weekis) \
-                 , (Print, Store_screen), (Be, WFalse)]  
+Alphachangelist=[(Is_in, Isin),(Is_not, Isnot),(It_is, Itis) \
+                 , (Print, Store_screen), (Be, WFalse), (IsEmpty, MatchEmpty)]  
 
 # operator categories
 Selectors=[All, Any, Next]
 Internal_Functions = [Begin, End, Change, Lasted, Inter, Count, Occur, Ramp, Proba, Hasvalue, \
                       Not, Pin, Key, Measure, Read, Touch, Name, Logd, Shuffle, Alea, Cumul, Steps, Order, Sequence, \
-                      Sqrt, Intg, Absv, Load, Image, Have, Idem, Pointer, Text, Timeis, Dayis, Dateis, Weekis, Time, Call]   
+                      Sqrt, Intg, Absv, Load, Image, Have, Old, Pointer, Text, Itis, Time, Call]  
 Comparators = [Within, Is, Isnot, Isin, Nequal, Grequal, Smequal, Equal, Greater, Smaller, Match, Since]
 Operators = [Plus, Minus, Mult, Div,  Add, Powr, Find, Listfind, To, Pick, Sort]                                    
 Basic_operators=Comparators+[And, Or, Not, Comma, Vrai, Faux]+Operators
-Effective=[Exit, Call, Output, Command, Write, Store, Display, Dialog, Print]                     
+##Effective=[Exit, Call, Output, Command, Write, Store, Display, Dialog, Print]
+Outputs=[Output, Write, Store, Command]
 
 Fixed=[Vrai, Faux, Epsilon, Empty]          # internally defined
 Glitch_list=[Begin, End, Change]
 
-Alphakwords = [Add, And, Find, Listfind, Hide, Is, Isnot, Isin, Match, Or, Pick, \
+Alphakwords = [Add, And, Find, Listfind, Is, Isnot, Isin, Match, Or, Pick, \
                            Powr, Show, Since, Sort, Order, Sequence, To, Until, Unused, When, Within] \
                           +Fixed+Selectors+Internal_Functions                       # must be separated from names 
 
-Symb=[Plus, Minus, Mult, Div, Equal, Nequal, Greater, Smaller, \
-                     Col, Obr, Cbr, Crlf, Space, Tabul, Tab, Mline, Comma]   # may be stuck to names 
+Symb=set([Plus, Minus, Mult, Div, Equal, Nequal, Greater, Smaller, \
+                     Col, Obr, Cbr, Crlf, Space, Tabul, Tab, Mline, Comma, Space])   # may be stuck to names 
+
+# operator characteristics
+Binary=set(Comparators+Operators+[And, Or])
+Unary=set(Selectors+Internal_Functions+[Obr])
+Priority_groups = [[Or, And], Comparators, [Comma], [Add, Find, Listfind, To, Pick, Sort], \
+                   [Plus, Minus], [Mult, Div], [Powr], [All, Any], \
+                   Internal_Functions, [Next]]
+
+# convert to set for faster search
+Internal_Functions = set(Internal_Functions)
+Comparators = set(Comparators)
+Operators = set(Operators)                                    
+Basic_operators=set(Basic_operators)
+
+# Functions whose result may vary without explicit cause
+Stochastic={Next, Proba, Shuffle, Alea}               
 
 # TIME UNITS
-Time_unit_list=[ "ms", "h", "wk", "s", "mn", "min", "day"]                    # beware of ms/s order for correct parsing  
 Unit_sec= "s" 
 Unit_hour= "h"
 Unit_week= "wk"
@@ -77,160 +94,151 @@ Unit_ms= "ms"
 Unit_min1= "mn"
 Unit_min2= "min"
 Unit_day= "day"
+Time_unit_list=[Unit_ms, Unit_sec, Unit_min1, Unit_min2, Unit_hour, Unit_day, Unit_week]   # beware of ms/s order for correct parsing  
+Time_unit_duration= {Unit_ms: 0.001, Unit_sec: 1, Unit_min1: 60, Unit_min2: 60,
+                     Unit_hour: 3600, Unit_day: 24*3600, Unit_week: 7*24*3600}
 
 # Natures (Booleans are events, new nature Stt created for states in V2)
 Nmbr, Drtn, Bln, Stt, Lst = ["nmbr"], ["drtn"], ["bln"], ["stt"], ["lst"]
 All_natures=Nmbr+ Drtn+ Bln+ Stt+ Lst
 
-# operator characteristics
-Binary=Comparators+Operators+[And, Or]
-Unary=Selectors+Internal_Functions+[Obr]
-Priority_groups = [[Or, And], [Comma], Comparators, [Add, Find, Listfind, To, Pick, Sort], \
-                   [Plus, Minus], [Mult, Div], [Powr], [All, Any], \
-                   Internal_Functions, [Next]]
-
-# Functions whose result may vary without explicit cause
-Stochastic=[Next, Proba, Shuffle, Alea]               
-
 Allowed={}              #    {(nature1, attribute1, nature2, attribute2, nature_result, attribute_result)}
-Allowed[Plus]=[(Bln, Value, Drtn, Value, Bln, Value)]                 # delayed instant stored in Value until true moved here v1_61
-Allowed[Plus]+=[(Nmbr, Value, Nmbr, Value, Nmbr, Value)]      # math operators  
+Allowed[Plus]=[(Bln, Value, Drtn, Value, Bln)]                 # delayed instant stored in Value until true moved here v1_61
+Allowed[Plus]+=[(Nmbr, Value, Nmbr, Value, Nmbr)]      # math operators  
 for op in [Minus, Mult, Div, Powr]:                                             # modif 
-    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Nmbr, Value)]       # math operators
+    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Nmbr)]       # math operators
 for op in [Minus, Plus]:                                                                    # duration operators
-    Allowed[op]+=[(Drtn, Value, Drtn, Value, Drtn, Value)]
+    Allowed[op]+=[(Drtn, Value, Drtn, Value, Drtn)]
 for op in [Mult, Div]:                                                                        # duration operators
-    Allowed[op]+=[(Drtn, Value, Nmbr, Value, Drtn, Value)]         # scale durations
+    Allowed[op]+=[(Drtn, Value, Nmbr, Value, Drtn)]         # scale durations
 for op in [And, Or]:
-    Allowed[op]=[(Bln, Value, Bln, Value, Bln, Value)]                 # Boolean operators
+    Allowed[op]=[(Bln, Value, Bln, Value, Bln)]                 # Boolean operators
 for op in [Order, Sequence]:
-    Allowed[op]=[(Lst, Value, [], None, Bln, Value)]                    # Instant operators 
+    Allowed[op]=[(Lst, Value, [], None, Bln)]                    # Instant operators 
 for op in [Nequal, Grequal, Smequal, Equal, Greater, Smaller]:    
-    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Bln, Value)]          # math comparators
-    Allowed[op]+=[(Drtn, Value, Drtn, Value, Bln, Value)]          # duration comparators
+    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Bln)]          # math comparators
+    Allowed[op]+=[(Drtn, Value, Drtn, Value, Bln)]          # duration comparators
 for op in [Nequal, Equal]:    
-    Allowed[op]+=[(Bln, Value, Bln, Value, Bln, Value)]                # compare truth value of Bln
-    Allowed[op]+=[(Stt, Value, Stt, Value, Bln, Value)]                  # state comparators
+    Allowed[op]+=[(Bln, Value, Bln, Value, Bln)]                # compare truth value of Bln
+    Allowed[op]+=[(Stt, Value, Stt, Value, Bln)]                  # state comparators
     
-Allowed[Not]=[(Bln, Value, [], None, Bln, Value)]                           # negate Boolean
+Allowed[Not]=[(Bln, Value, [], None, Bln)]                           # negate Boolean
 
-Allowed[Special] = [(Lst, Value, All_natures, Value, All_natures, Value)]  # subscripting a list 
+Allowed[Special] = [(Lst, Value, All_natures, Value, All_natures)]  # subscripting a list 
 
-Allowed[Find]  =[(Lst, Value, Bln, Value, Nmbr, Value)]                  # search list for a Boolean   
-Allowed[Find]+=[(Lst, Value, Nmbr, Value, Nmbr, Value)]             # search list for a number
-Allowed[Find]+=[(Lst, Value, Drtn, Value, Nmbr, Value)]                # search list for a duration
-Allowed[Find]+=[(Lst, Value, Stt, Value, Nmbr, Value)]                   # search list for a state
+Allowed[Find]  =[(Lst, Value, Bln, Value, Nmbr)]                  # search list for a Boolean   
+Allowed[Find]+=[(Lst, Value, Nmbr, Value, Nmbr)]             # search list for a number
+Allowed[Find]+=[(Lst, Value, Drtn, Value, Nmbr)]                # search list for a duration
+Allowed[Find]+=[(Lst, Value, Stt, Value, Nmbr)]                   # search list for a state
 
-Allowed[Listfind]=[(Lst, Value, Lst, Value, Nmbr, Value)]               # search list for a list
+Allowed[Listfind]=[(Lst, Value, Lst, Value, Nmbr)]               # search list for a list
 
-Allowed[Isin] =[(Nmbr, Value, Lst, Value, Bln, Value)]                   # search list for a number 
-Allowed[Isin]+=[(Bln, Value, Lst, Value, Bln, Value)]                       # search list for a Boolean
-Allowed[Isin]+=[(Drtn, Value, Lst, Value, Bln, Value)]                     # search list for a duration
-Allowed[Isin]+=[(Stt, Value, Lst, Value, Bln, Value)]                        # search list for a state   
-# Allowed[Isin]+=[(Stt, Value, Stt, Value, Bln, Value)]                    # search string for a state (not yet implemented)
+Allowed[Isin] =[(Nmbr, Value, Lst, Value, Bln)]                   # search list for a number 
+Allowed[Isin]+=[(Bln, Value, Lst, Value, Bln)]                       # search list for a Boolean
+Allowed[Isin]+=[(Drtn, Value, Lst, Value, Bln)]                     # search list for a duration
+Allowed[Isin]+=[(Stt, Value, Lst, Value, Bln)]                        # search list for a state   
+# Allowed[Isin]+=[(Stt, Value, Stt, Value, Bln)]                    # search string for a state (not yet implemented)
 
-Allowed[Count]=[(Lst, Value, [], None, Nmbr, Value)]                    # count objects in lists
-Allowed[Count]+=[(Bln, Count, [], None, Nmbr, Value)]                 # count occurrences of a Boolean
-Allowed[Proba]=[(Nmbr, Value, [], None, Bln, Value)]                   # returns a Boolean with specified probability
-Allowed[Since]=[(Drtn, Value, Bln, Value, Bln, Value)]                   
-Allowed[Lasted]=[(Bln, Value, [], None, Drtn, Value)]                     
-Allowed[Inter]=[(Bln, Occur, [], None, Drtn, Value)]                        
+Allowed[Count]=[(Lst, Value, [], None, Nmbr)]                    # count objects in lists
+Allowed[Count]+=[(Bln, Count, [], None, Nmbr)]                 # count occurrences of a Boolean
+Allowed[Proba]=[(Nmbr, Value, [], None, Bln)]                   # returns a Boolean with specified probability
+Allowed[Since]=[(Drtn, Value, Bln, Value, Bln)]                   
+Allowed[Lasted]=[(Bln, Value, [], None, Drtn)]                     
+Allowed[Inter]=[(Bln, Occur, [], None, Drtn)]                        
 
 for op in [Name]:
-    Allowed[op]=[(All_natures, op, [], None, Stt, Value)]                            # name as a string
+    Allowed[op]=[(All_natures, op, [], None, Stt)]                            # name as a string
 for op in [Begin, End]:
-    Allowed[op]=[(Bln, Value, [], None, Bln, Value)]                                         
-#    Allowed[op]+=[(Lst, Value, [], None, Lst, Value)]                              # forbidden: use 'any' instead
+    Allowed[op]=[(Bln, Value, [], None, Bln)]                                         
+#    Allowed[op]+=[(Lst, Value, [], None, Lst)]                              # forbidden: use 'any' instead
 for op in [Change]:                                                                
-    Allowed[op]=[(All_natures, Lastchange, [], None, Bln, Value)]             # any nature of variable        
+    Allowed[op]=[(All_natures, Lastchange, [], None, Bln)]             # any nature of variable        
     
 for op in [Is, Isnot]:
-##    Allowed[op]=[(Bln, Value, Bln, Value, Bln, Value)]                            # use Equal instead                     
-    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Bln, Value)]               
-    Allowed[op]+=[(Drtn, Value, Drtn, Value, Bln, Value)]                    
-    Allowed[op]+=[(Stt, Value, Stt, Value, Bln, Value)]                    
+##    Allowed[op]=[(Bln, Value, Bln, Value, Bln)]                            # use Equal instead                     
+    Allowed[op]=[(Nmbr, Value, Nmbr, Value, Bln)]               
+    Allowed[op]+=[(Drtn, Value, Drtn, Value, Bln)]                    
+    Allowed[op]+=[(Stt, Value, Stt, Value, Bln)]                    
     
 for op in [Match]:                                                                          
-    Allowed[op]=[(Lst, Value, Lst, Value, Bln, Value)]                       
+    Allowed[op]=[(Lst, Value, Lst, Value, Bln)]                       
 
 for op in [Occur]:
-    Allowed[op]=[(Bln, op, [], None, Lst, Value)]                                       
-    Allowed[op]+=[(Lst, op, [], None, Stt, Value)]                      # trick to prevent distributivity (use 'any' instead)                 
+    Allowed[op]=[(Bln, op, [], None, Lst)]                                       
+    Allowed[op]+=[(Lst, op, [], None, Stt)]                      # trick to prevent distributivity (use 'any' instead)                 
 
 for op in [Pick, Sort]:                                                                            
-    Allowed[op]=[(Lst, Value, Lst, Value, Lst, Value)]                                      
+    Allowed[op]=[(Lst, Value, Lst, Value, Lst)]                                      
 
 for op in [Cumul, Steps]:
-    Allowed[op]=[(Nmbr, Value, [], None, Lst, Value)]                    # implemented as elemental, through distributivity
-    Allowed[op]+=[(Drtn, Value, [], None, Lst, Value)]                    # implemented as elemental, through distributivity
-#    Allowed[op]+=[(Stt, Value, [], None, Lst, Value)]                     # concatenation/split, to be implemented
+    Allowed[op]=[(Nmbr, Value, [], None, Lst)]                    # implemented as elemental, through distributivity
+    Allowed[op]+=[(Drtn, Value, [], None, Lst)]                    # implemented as elemental, through distributivity
+#    Allowed[op]+=[(Stt, Value, [], None, Lst)]                     # concatenation/split, to be implemented
     
 for op in [Add]:                                                                            # works with all natures                                                                                        
-    Allowed[op]  =[(Lst, Value, Lst, Value, Lst, Value)]                       
-    Allowed[op]+=[(Lst, Value, Nmbr, Value, Lst, Value)]                       
-    Allowed[op]+=[(Lst, Value, Drtn, Value, Lst, Value)]                       
-    Allowed[op]+=[(Lst, Value, Bln, Value, Lst, Value)]                                          
-    Allowed[op]+=[(Lst, Value, Stt, Value, Lst, Value)]                                          
-    Allowed[op]+=[(Nmbr, Value, Lst, Value, Lst, Value)]                     
-    Allowed[op]+=[(Drtn, Value, Lst, Value, Lst, Value)]                     
-    Allowed[op]+=[(Bln, Value, Lst, Value, Lst, Value)]                                      
-    Allowed[op]+=[(Stt, Value, Lst, Value, Lst, Value)]                                      
+    Allowed[op]  =[(Lst, Value, Lst, Value, Lst)]                       
+    Allowed[op]+=[(Lst, Value, Nmbr, Value, Lst)]                       
+    Allowed[op]+=[(Lst, Value, Drtn, Value, Lst)]                       
+    Allowed[op]+=[(Lst, Value, Bln, Value, Lst)]                                          
+    Allowed[op]+=[(Lst, Value, Stt, Value, Lst)]                                          
+    Allowed[op]+=[(Nmbr, Value, Lst, Value, Lst)]                     
+    Allowed[op]+=[(Drtn, Value, Lst, Value, Lst)]                     
+    Allowed[op]+=[(Bln, Value, Lst, Value, Lst)]                                      
+    Allowed[op]+=[(Stt, Value, Lst, Value, Lst)]                                      
     
 for op in [Any, All]:
-    Allowed[op]=[(Lst, Value, [], None, Bln, Value)]                                    # list to Boolean   
-Allowed[Within]=[(Lst, Value, Lst, Value, Bln, Value)]
+    Allowed[op]=[(Lst, Value, [], None, Bln)]                                    # list to Boolean   
+Allowed[Within]=[(Lst, Value, Lst, Value, Bln)]
 
-Allowed[Next]=[(Lst, Value, [], None, All_natures, Value)]                       # list (does not specify nature of result)
+Allowed[Next]=[(Lst, Value, [], None, All_natures)]                       # list (does not specify nature of result)
 
-Allowed[Hasvalue]=[(All_natures, Value,  [], None, Bln, Value)]             # detects that value is not None
+Allowed[Hasvalue]=[(All_natures, Value,  [], None, Bln)]             # detects that value is not None
 
-Allowed[To]=[(Bln, Occur, Bln, Occur, Drtn, Value)]                         # difference of instants is duration 
-Allowed[Mult]+=[(Nmbr, Value, Drtn, Value, Drtn, Value)]              # multiply durations
-Allowed[Div]+=[(Drtn, Value, Drtn, Value, Nmbr, Value)]                # divide durations
-Allowed[Sqrt]=[(Nmbr, Value, [], None, Nmbr, Value)]                    # square root of number
-Allowed[Logd]=[(Nmbr, Value, [], None, Nmbr, Value)]                   # decimal log of number  
-Allowed[Intg]=[(Nmbr, Value, [], None, Nmbr, Value)]                     # integer of number
-Allowed[Absv]=[(Nmbr, Value, [], None, Nmbr, Value)]                   # absolute value of number
-Allowed[Ramp]=[(Nmbr, Value, [], None, Lst, Value)]                   # list of consecutive integers, starting with 1
-Allowed[Alea]=[(Nmbr, Value, [], None, Lst, Value)]                     # list of random float values from 0 to less than 1  
-Allowed[Measure]=[(Nmbr, Value, [], None, Nmbr, Value)]          # analog input on demand  
-Allowed[Read]=[(Nmbr, Value, [], None, Stt, Value)]                   # text input on demand  
-Allowed[Touch]=[(Lst, Value, [], None, Lst, Value)]                      # touchscreen input on demand  
-Allowed[Load]=[(Stt, Value, [], None, Lst, Value)]                       # takes a filename, gives a list      
-Allowed[Have]=[(Lst, Value, [], None, Lst, Value)]                       # returns list of objects with given attribute     
-Allowed[Idem]=[(Nmbr, Value, [], None, Nmbr, Value)]             # keeps old value    
-Allowed[Idem]+=[(Drtn, Value, [], None, Drtn, Value)]               # keeps old value    
-Allowed[Idem]+=[(Stt, Value, [], None, Stt, Value)]                     # keeps old value    
-Allowed[Idem]+=[(Lst, Value, [], None, Lst, Value)]                    # keeps old value 
-Allowed[Idem]+=[(Bln, All, [], None, Bln, Value)]                         # keeps old value 
-Allowed[Text]=[(Nmbr, Value, [], None, Stt, Value)]                     # converts value to text  
-Allowed[Text]+=[(Bln, Value, [], None, Stt, Value)]                       # converts value to text    
-Allowed[Text]+=[(Stt, Value, [], None, Stt, Value)]                        # converts value to text    
-Allowed[Text]+=[(Drtn, Value, [], None, Stt, Value)]                     # converts value to text    
-Allowed[Text]+=[(Lst, Value, [], None, Stt, Value)]                        # converts value to text    
-Allowed[Pointer]=[(Lst, Pointer, [], None, Nmbr, Value)]                            
-Allowed[Shuffle]=[(Lst, Value, [], None, Lst, Value)]                      # shuffle lists  
-Allowed[Timeis]=[(Drtn, Value, [], None, Bln, Value)]                        # absolute time event   
-Allowed[Dayis]=[(Stt, Value, [], None, Bln, Value)]                            # absolute time event   
-Allowed[Dateis]=[(Stt, Value, [], None, Bln, Value)]                          # absolute time event   
-Allowed[Weekis]=[(Nmbr, Value, [], None, Bln, Value)]                     # absolute time event   
-Allowed[Time]=[(Bln, Value, [], None, Drtn, Value)]                          # absolute time event   
-Allowed[Call]=[(All_natures, Value, [], None, All_natures, Value)]       # external function   
+Allowed[To]=[(Bln, Occur, Bln, Occur, Drtn)]                         # difference of instants is duration 
+Allowed[Mult]+=[(Nmbr, Value, Drtn, Value, Drtn)]              # multiply durations
+Allowed[Div]+=[(Drtn, Value, Drtn, Value, Nmbr)]                # divide durations
+Allowed[Sqrt]=[(Nmbr, Value, [], None, Nmbr)]                    # square root of number
+Allowed[Logd]=[(Nmbr, Value, [], None, Nmbr)]                   # decimal log of number  
+Allowed[Intg]=[(Nmbr, Value, [], None, Nmbr)]                     # integer of number
+Allowed[Absv]=[(Nmbr, Value, [], None, Nmbr)]                   # absolute value of number
+Allowed[Ramp]=[(Nmbr, Value, [], None, Lst)]                   # list of consecutive integers, starting with 1
+Allowed[Alea]=[(Nmbr, Value, [], None, Lst)]                     # list of random float values from 0 to less than 1  
+Allowed[Measure]=[(Nmbr, Value, [], None, Nmbr)]          # analog input on demand  
+Allowed[Read]=[(Nmbr, Value, [], None, Stt)]                   # text input on demand  
+Allowed[Touch]=[(Lst, Value, [], None, Lst)]                      # touchscreen input on demand  
+Allowed[Load]=[(Stt, Value, [], None, Lst)]                       # takes a filename, gives a list      
+Allowed[Have]=[(Lst, Value, [], None, Lst)]                       # returns list of objects with given attribute     
+Allowed[Old]=[(Nmbr, Value, [], None, Nmbr)]             # keeps old value    
+Allowed[Old]+=[(Drtn, Value, [], None, Drtn)]               # keeps old value    
+Allowed[Old]+=[(Stt, Value, [], None, Stt)]                     # keeps old value    
+Allowed[Old]+=[(Lst, Value, [], None, Lst)]                    # keeps old value 
+Allowed[Old]+=[(Bln, All, [], None, Bln)]                         # keeps old value 
+Allowed[Text]=[(Nmbr, Value, [], None, Stt)]                     # converts value to text  
+Allowed[Text]+=[(Bln, Value, [], None, Stt)]                       # converts value to text    
+Allowed[Text]+=[(Stt, Value, [], None, Stt)]                        # converts value to text    
+Allowed[Text]+=[(Drtn, Value, [], None, Stt)]                     # converts value to text    
+Allowed[Text]+=[(Lst, Value, [], None, Stt)]                        # converts value to text    
+Allowed[Pointer]=[(Lst, Pointer, [], None, Nmbr)]                            
+Allowed[Shuffle]=[(Lst, Value, [], None, Lst)]                      # shuffle lists  
+Allowed[Itis]=[(Drtn, Value, [], None, Bln)]                        # absolute time event   
+Allowed[Itis]+=[(Nmbr, Value, [], None, Bln)]                     # absolute time event   
+Allowed[Itis]+=[(Stt, Value, [], None, Bln)]                          # absolute time event   
+Allowed[Time]=[(Bln, Value, [], None, Drtn)]                          # absolute time event   
+Allowed[Call]=[(All_natures, Value, [], None, All_natures)]       # external function   
 
 Non_distributive1=[]                                                                         # list operators do not distribute 
 Non_distributive2=[]                                                                         # differentiating left and right 
 for op in list(Allowed.keys()):
-    for nat1, a1, nat2, a2, natres, ar in Allowed[op]:
+    for nat1, a1, nat2, a2, natres in Allowed[op]:
         if (Lst[0] in nat1): Non_distributive1+=[op] 
         if (Lst[0] in nat2): Non_distributive2+=[op]
 Non_distributive1+=[Load, Store, Print]                                        
 
 # ERROR MESSAGES                
 # tools
-Err_missing_name="*** Syntax error: missing name or too many values ***"
 Anom_text_after_block="*** Anomaly: text found after block ***"
 Err_invalid_nat="*** Syntax error: invalid nature for '"
-Err_inconsistent_nat="*** Error in getnature: inconsistent nature ***"
+Err_inconsistent_nat="*** Error in get_nature: inconsistent nature ***"
 Err_unbalanced_brackets="*** Error: unbalanced brackets ***"
 Err_unbalanced_quotes="*** Error: unbalanced quotes ***"
 Anom_illegal_dict_val="*** Anomaly: illegal dict value ***"
@@ -238,11 +246,13 @@ Anom_illegal_dict_val="*** Anomaly: illegal dict value ***"
 Anom_string_key="*** String anomaly ***"
 Err_illegal_special="*** Illegal character in program: "+ Special +" ***"
 Err_illegal_char="*** Illegal character in program ***"
+Err_missing_name="*** Syntax error: missing name or too many values ***"
 Err_empty_prog="*** Error: program script is empty ***"
 Err_unfinished_string="*** Error: End of File encountered while parsing string ***"
 Err_syntax="*** Syntax error ***"
 Err_syntax_extra_chars="*** Syntax error: illegal characters at end of line ***"
 Err_404="*** File not found ***"         # also in runtime
+Warn_multiple_spaces="*** Warning: multiple spaces. Brackets may help disambiguate ***\n" \
 # compile
 Err_empty_name="*** Syntax error: empty name ***"
 Help_continuation="--> you may have meant (with continuation character '"
@@ -252,9 +262,11 @@ Err_equal_in_name="*** Illegal character in name: "+ Equal +" ***"
 Err_redef_name="*** Error: Node is already defined ***"
 Err_missing_op="*** Syntax error: expecting operator ***"
 Warn_switch_any_all="*** Warning: compiler made the following substitution ***"
-Err_no_instance="*** Error: cannot find function instances ***"
+Anom_no_args="*** Anomaly: cannot find function arguments ***"
 Err_nb_args="*** Error: wrong number of arguments ***"
+Err_missing_args="*** Error: missing argument ***"
 Err_no_arg="*** Syntax error: function without arguments ***"
+Err_accessory="*** Error: accessory variable is not part of a function definition ***"
 Err_space_in_name="*** Syntax error: incorrect expression ***"
 Err_op_syntax="*** Syntax error in operator ***"
 Err_unknown_funct="*** Error: unknown function ***"
@@ -271,7 +283,7 @@ Warn_never_applied="*** Warning: function is never applied ***"
 Warn_typing_risk="*** Warning: risk of typing error ***"
 # controlpanel
 Label_global_start="     Global start    "
-Label_global_fast="     Global FAST    "
+Label_global_fast="   SPEED  x "
 Label_global_slow="     Global SLOW    "
 Label_global_stop="     Global stop    "
 Label_restart="    New session    "
@@ -299,11 +311,11 @@ Anom_setv_nat="*** Anomaly in rt.setv: unknown nature ***   "
 Anom_find="*** Anomaly Find: non Bln in list"
 Anom_isin="*** Anomaly Isin: non Bln in list"
 Anom_bufstore="*** Anomaly in bufstore: not a list:"
-Anom_trigger="*** Anomaly: attempt to trigger a list ***   "
 Warn_circular="*** Warning: probable circular dependencies ***"
 Warn_multi_update="*** Warning: multiple updating ***"
 Warn_Heterogeneous="*** Warning: cannot work with heterogeneous lists ***"
 Warn_empty_ramp="*** Warning: empty ramp ***"
+Warn_null_index="*** Warning: null index in list ***   "
 Warn_div_zero="*** Warning: divide by zero ***   "
 Warn_sqrt_neg="*** Warning: sqrt of negative number ***   "
 Warn_invalid_nb="*** Warning: invalid number ***   "
@@ -318,14 +330,15 @@ Err_imposs_oper="*** Error: impossible operation ***"
 Err_no_open="*** Unable to open file ***   "
 End_prog="*** End of program ***"        # also in controlpanel
 Err_switch_operands="*** Syntax error: Please switch operands ***"
-# main
-Err_unused_obj="*** Error in 'unused' declaration : object does not exist ***"
-Err_unused_config="*** Configuration/Script mismatch: this i/o is declared as 'unused' ***"
+# initial
+Err_ask_nature="*** Indeterminate nature: Please add a '"+Be+"' instruction \n     with "+Ewent+", "+Number+", "+Delay+", "+ State + " or "+ List + " to following objects ***"
 Warn_no_exit="*** Warning: program without exit condition ***"
 Warn_iterations="*** Warning: too many iterations, probable circular dependencies ***"
 Warn_no_value_at_start="*** Warning:  following objects have no value at start ***"
+# main
+Err_unused_obj="*** Error in 'unused' declaration : object does not exist ***"
+Err_unused_config="*** Configuration/Script mismatch: this i/o is declared as 'unused' ***"
 Err_Val="\n*** Error in value *** "                         
-Err_ask_nature="*** Indeterminate nature: Please add a '"+Be+"' instruction \n     with "+Ewent+", "+Number+", "+Delay+", "+ State + " or "+ List + " to following objects ***"
 Err_no_source="*** Error: source or configuration file not found ***"
 Err_yoked="*** Error: invalid yoke master number ***"
 Err_abort="\n---  PROCESS ABORTED  ---"
@@ -493,3 +506,5 @@ Tkinter_colors= ["alice blue", "AliceBlue", "antique white", "AntiqueWhite", \
  "wheat1", "wheat2", "wheat3", "wheat4", "white", \
  "white smoke", "WhiteSmoke", "yellow", "yellow green", "yellow1", \
  "yellow2", "yellow3", "yellow4", "YellowGreen"]
+
+

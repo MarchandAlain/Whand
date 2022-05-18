@@ -13,7 +13,7 @@ except:
 
 Screen_width = 1300                 # for labels only. Actual screen size is determined later in makebox
 PFColor=PinFalseColor if Speed_factor==1 else PinFastColor if Speed_factor>1 else PinSlowColor
-LabelGS=Label_global_start if Speed_factor==1 else Label_global_fast if Speed_factor>1 else Label_global_slow
+LabelGS=Label_global_start if Speed_factor==1 else Label_global_fast+str(Speed_factor) if Speed_factor>1 else Label_global_slow
 
 #===================================================== Framing  
 class Framing(Frame):
@@ -142,13 +142,13 @@ class Interface(Frame):
         self.autotest=autotest
 
     def labelling(self, sv, element):                                                                        # Appearance: colors and texts (dynamic)
-            nam=noquotes(element)                                                                        # remove external quotes from names
+            nam=no_quotes(element)                                                                        # remove external quotes from names
             if not element in sv.Object:                                                                     # check existence 
                 print(Err_key, Crlf, "-->", element)
                 raise ReferenceError                       
             nod=sv.Object[element]
             nat=nod.nature
-            vlu=noquotes(nod.value)                                                                       # remove external quotes from values
+            vlu=no_quotes(nod.value)                                                                       # remove external quotes from values
             vlu=self.formatting(sv, nat, vlu)                                                             # format numbers, durations and lists
             bgcolor=ValueColor                                                                               
             fgcolor=DarkColor                                                                               # default colors for standard nodes
@@ -164,11 +164,11 @@ class Interface(Frame):
             if nat in [Bln, Stt]:
                 if vlu==nam: vlu=""                                                                          # empty value if same as name
                 # check for forced color
-                if noquotes(nod.value) in Tkinter_colors:                                           # use color names from name
-                    bgcolor=noquotes(nod.value)
+                if no_quotes(nod.value) in Tkinter_colors:                                           # use color names from name
+                    bgcolor=no_quotes(nod.value)
                     vlu=""
-                if noquotes(nod.name) in Tkinter_colors:                                          #  use color names from value 
-                    bgcolor=noquotes(nod.name)
+                if no_quotes(nod.name) in Tkinter_colors:                                          #  use color names from value 
+                    bgcolor=no_quotes(nod.name)
                     if nat==Bln and istrue(nod, sv.Current_time): bgcolor=ValueColor  #  revert to standard value color if true
                     if vlu in sv.Pinlist: vlu=""                                                               # empty value for Pins
                 if type(vlu)==list and vlu \
@@ -193,11 +193,11 @@ class Interface(Frame):
             l=len(cop)
             if  l>4: l=4
             for elt in cop[:l]:
-                nt=getnature(sv, elt)
+                nt=get_nature(sv, elt)
                 elt=self.formatting(sv, nt, elt)
                 vlu+=str(elt)+","
             if len(cop)<=4 and l>0: vlu=vlu[:-1]         # remove final comma
-            if len(cop)>4: vlu=vlu+["..."]       # shorten list values
+            if len(cop)>4: vlu=vlu+"..."       # shorten list values
             vlu=vlu+Cbr
         if nat==Drtn and type(vlu)==str:                                                       # format durations
             vlu=float(vlu[:-1])
@@ -205,7 +205,7 @@ class Interface(Frame):
         if type(vlu)==float:
             vlu=int(.5+1000*vlu)/1000                                                              # round values
             vlu=('%9.3f' % vlu).rstrip("0").rstrip(".").lstrip(" ")                       # format float values
-        if nat == Drtn: vlu+="s"
+        if nat == Drtn and vlu is not None: vlu+="s"
         return vlu   
     
     def create(self, sv, supervisor, svlist, args):                                          # interface.create: define button actions
@@ -296,7 +296,7 @@ class Interface(Frame):
         if Exit in sv.Object and istrue(sv.Object[Exit], sv.Current_time) or self.pause: # finished or already in pause
             if not self.closed:
                 self.exitbox(sv, supervisor, svlist)                                     # exit sequence
-                self.after_cancel(self.callback)                                    # prevent 'after' callback
+                if getattr(self, 'callback', 0)!=0: self.after_cancel(self.callback)   # prevent 'after' callback
         else:                                                                            # resume after a pause     
             self.bouton_start["bg"] = PFColor                  
             self.bouton_start["text"] =Label_resume
@@ -383,7 +383,7 @@ def makebox(svlist, autotest):                                                # 
         orderlist=[]
         if Show in sv.Object:
             for nam in sv.Object_list:
-                if not isdictkey(sv, nam, Hide) and not isdictkey(sv, nam, Unused):
+                if not isdictkey(sv, nam, Unused):
                     showed=applied(nam, Show)                            # show object in given order   
                     counted=applied(showed, Count)                     # show object if counted   
                     if counted and not counted in orderlist:        
@@ -394,7 +394,10 @@ def makebox(svlist, autotest):                                                # 
         if Allow_manual:
             plist=[]
             for nam in sv.Pinlist:
-                if not isdictkey(sv, nam, Hide) and not isdictkey(sv, nam, Unused):
+                num=applied(nam, Pin)
+                if num and int(num)>Max_show_pins:
+                    continue                                                          # do not show
+                if not isdictkey(sv, nam, Unused):
                     if not nam in orderlist:
                         if not nam in sv.Namedpinlist:
                             plist+=[nam]
@@ -415,6 +418,23 @@ def makebox(svlist, autotest):                                                # 
     fenetre.quit()
     return supervisor.new_session
    
+#===================================================== isdictkey
+def isdictkey(sv, mykey, dictname):
+    """
+    verifies if mykey is a key to Whand dictionary, returns True/False         
+    """
+    if not dictname in sv.Object: return False
+    li=sv.Object[dictname].value
+    if li is None: return False
+    if type(li)!=list:
+        print("\n", Anom_illegal_dict_val)                          # *** Anomaly: illegal dict value ***                        
+        print(dictname, "=", li)
+        raise ReferenceError
+    ky=dictname+Obr+mykey+Cbr    
+    for elt in li:                                    
+        if elt==ky: return True              
+    return False
+
 #===================================================== init_update  
 def init_update(sv, autotest):
     """
@@ -428,3 +448,5 @@ def init_update(sv, autotest):
         rt.update_loop(sv)                                                               
 
     
+
+
