@@ -5,12 +5,12 @@ This is the options and parameters module.
 """
 # system =====================================================
 Pywin=False                                     # True when running under Windows
-Nosave= False                                  # set to False to record/read event data
+Nosave= True                                  # set to False to record/read event data
 Printout= False    # True                    # display message when i/o change (debugging tool)
 
 # timing constants ===============================================
-Speed_factor=3                                  # to accelerate (or slow down) clock under controlpanel
-Timestep=.02                                    # display refresh period (seconds)
+Speed_factor=1                                  # to accelerate (or slow down) clock under controlpanel
+Timestep=.05                                    # display refresh period (seconds)
 
 # I/O options ====================================================
 ASi="ASi"
@@ -27,7 +27,7 @@ Split_second=10                                                                 
 # global constants ===============================================
 Scriptdir="scripts"                              # Subdirectory for scripts and run files
 Datadir="data"                                   # Subdirectory for results
-Max_occur_list=1000                           # memory span for event occurrence (automatically increased offline)
+Max_occur_list=10                              # memory span for event occurrence (automatically increased offline)
 Max_iter=100
 Max_depth=20
 Change_time= 0.000001                      # used to create transients (change) 
