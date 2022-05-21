@@ -9,7 +9,7 @@ Nosave= True                                  # set to False to record/read even
 Printout= False    # True                    # display message when i/o change (debugging tool)
 
 # timing constants ===============================================
-Speed_factor=1                                  # to accelerate (or slow down) clock under controlpanel
+Speed_factor=10                                  # to accelerate (or slow down) clock under controlpanel
 Timestep=.05                                    # display refresh period (seconds)
 
 # I/O options ====================================================

@@ -86,7 +86,7 @@ def update_loop(sv):
             fuse_delays(sv, nod)                                                   # reorder delays
             status=istrue(nod, sv.Current_time)                             # new status (may be an ON or OFF event)
 
-            # update pinstate of pins and keys as delayed events
+            # update pinstate of pins and keys as delayed events (do not updateval until all are done)
             if applied(nom, Pin) or applied(nom, Key): sv.Pinstate[nom]=Vrai if status else Faux
 
             # display on controlpanel              
@@ -96,11 +96,12 @@ def update_loop(sv):
             iv.update_condition(sv, nom, st=status)                      # update condition to update consequences       
             nod.haschanged=True                                               # mark object as changed                                       
             nod.lastchange=sv.Current_time                                 # set change time 
-            updateval(sv)
 
             #  test for more simultaneous delays
             if sv.delayed_list and abs(sv.delayed_list[-1][0])<= sv.Current_time: done=False
-            
+
+        updateval(sv)                                                                # now for all events within the same time step
+        
         # END of loop: while not done 
 
         sv.delayed_list = nextevents(sv)                                      # reorder all delayed events       

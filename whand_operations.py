@@ -433,17 +433,16 @@ def do_match(sv, O, v1, v2):                                                    
         # not distributive: use '=' or 'is' instead                 
         if coincide(v1, v2): return True                               
         if type(v1)!=list or type(v2)!=list: return False     
-        if len(v1)!=len(v2): return False                           
-        for c,d in zip(v1,v2):                                     # deep matching (1 level)
-            a,b=c,d                                                    # preserve initial lists
-            if type(c)==list:                                        # element is a list
-                a=c[:]
-                for i, x in enumerate(a):                       # look into list
-                    a[i]=get_node(sv, x).value                 # get value from name
-            if type(d)==list:                                        # element is a list
-                b=d[:]
-                for i, x in enumerate(b):                       # look into list
-                    b[i]=get_node(sv, x).value                 # get value from name
+        if len(v1)!=len(v2): return False
+
+        for c,d in zip(v1,v2):                                     # deep matching 
+            a = c if isnumber(c) else deep_get(sv, c, Value)
+            b = d if isnumber(d) else deep_get(sv, d, Value)
+            if c in sv.Object and sv.Object[c].nature==Bln:
+                a=logic(a[0], sv.Current_time)       
+            if d in sv.Object and sv.Object[d].nature==Bln:
+                b=logic(b[0], sv.Current_time)
+##            print(a,b)
             if not coincide(a,b): return False
         return True                                                                                                   
 

@@ -1411,11 +1411,14 @@ def controlled_proba(args):
 
  ###===================================================== main
 if __name__== "__main__":
-    li=getbinfile("../scripts/essai.txt")
-    li=no_line_feed(li)
-    print(bin_to_text(li))
-    print("==================================")
-    li=fuse_continued_lines(li)
-    txt=bin_to_text(li)
-    print(txt)
+    print("\n*** whand_io ONLINE ***")
+    waitforuser()
+    
+##    li=getbinfile("../scripts/essai.txt")
+##    li=no_line_feed(li)
+##    print(bin_to_text(li))
+##    print("==================================")
+##    li=fuse_continued_lines(li)
+##    txt=bin_to_text(li)
+##    print(txt)
 

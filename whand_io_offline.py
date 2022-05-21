@@ -775,4 +775,14 @@ def arct(l):
 
  ###===================================================== main
 if __name__== "__main__":
-    pass
+    print("\n*** whand_io OFFLINE ***")
+    waitforuser()
+    
+##    li=getbinfile("../scripts/essai.txt")
+##    li=no_line_feed(li)
+##    print(bin_to_text(li))
+##    print("==================================")
+##    li=fuse_continued_lines(li)
+##    txt=bin_to_text(li)
+##    print(txt)
+
