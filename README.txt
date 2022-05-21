@@ -8,7 +8,7 @@ reward: when lever_pressed                  # definition of "reward", a 500 ms o
 output(1): reward                           # definition of "output(1)": link "reward" to hardware output port 1
 lever_pressed: pin(2)                       # definition of "lever_pressed": link to hardware input port 2
 
-Some of the characteristics of Whand are described in The_book_of_Whand.pdf. More in directory: doc
+Most of the characteristics of Whand are described in The_book_of_Whand.pdf. More in directory: doc. Examples in directory scripts.
 A full (if somewhat technical) description of the language is given in WHAND REFERENCE MANUAL.docx
 To set up and test a working version, see WHAND USER MANUAL.docx
 Whand is written in Python and is open source. The Python module named whand_driver.py contains all functions that need to be adapted to each type of hardware. Currently available for Imetronic(R) and Raspberry Pi hardware.
