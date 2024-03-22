@@ -61,7 +61,7 @@ def actual_script(sourcename, master=0):
         sourcename=scriptlist[master-1]
     return sourcename, master, showname
 
-###===================================================== lock_window
+##===================================================== lock_window
 def lock_window(windowlock):
     if Pywin and not autotest and not windowlock:
        windowlock=True
@@ -72,6 +72,44 @@ def lock_window(windowlock):
                win32gui.DeleteMenu(hMenu, win32con.SC_CLOSE, win32con.MF_BYCOMMAND)
     return windowlock
  
+##===================================================== prepare_script
+def prepare_script():
+    """
+    compile and initialize script 
+    store result in sv
+    parameters sv, sourcename, autotest, box, parallel, iocodes, showname are defined in main procedure
+    """
+    sv.clear_all()                                                    # reset all variables except Graphic and Debog
+    sv.Graphic=False                                             # no controlpanel
+    sv.Do_tests=autotest
+    sv.Boxnumber=box
+    sv.slaveto=master                                           # yoked script if master!=0
+    sv.Current_clause=None, None, None
+    sv.Current_time=0 
+    sv.Counter=0                                                  # debugging variable
+
+    try:                                                            
+            tout=io.readscriptfile(sourcename)                
+    except IOError:
+            print("\n", Err_no_source, "\n-->", sourcename)
+            if initialized: io.finish()                              # properly close boxes
+            if not IDLE: io.waitforuser()
+            os._exit(1)                                                # graceful exit   
+
+    print("building", sourcename)
+    prog=pc.precompile(sv, tout)
+    if sv.slaveto: prog=make_yoked(prog)
+    cm.compile(sv, prog)                                      # compile script
+    sv.Graphic=((Show in sv.Object) or parallel) and not Blind in sv.Object      # interactive panel if "show" is detected       
+
+    iv.prepare_program(sv)                                  # full initialization
+    if not initialized: io.initialize(sv, iocodes)         # input and output codes for event logging  
+    io.init_interrupts(sv)                                          
+    io.initbox(sv, showname)                                   
+    rt.filestore(sv)                                               # open file(s) for storage if needed                                                                     
+    svlist.append(sv)                                           # list of programs
+    print("\n============================================")
+
 ###===================================================== main
 """
 Main program calls whand_io to get a list of script names. Scripts may be run in parallel or sequentially
@@ -102,61 +140,47 @@ if __name__== "__main__":
             box=0
             testnum=0
             scriptlist, autotest, parallel=io.getscriptlist()                      # read script
-
-            # prevent window from closing
-            windowlock=lock_window(windowlock)
-
-            # store test start time                       
-            if autotest: debut=io.clock()
+            if autotest: debut=io.clock()                                              # store test start time
 
             # begin loop on script names
             for sourcename in scriptlist:
                 sourcename, master, showname = actual_script(sourcename)     # adjust if yoked                                      
 
                 # initialize box                    
-                testnum+=1
                 sv=sp.spell()
-                sv.Boxnumber=box
-                if parallel: box+=1                                           # different channel numbers on each box
-                sv.Graphic=False                                             # no controlpanel
-                sv.clear_all()                                                    # reset all variables except Graphic and Debog
-                sv.slaveto=master                                           # yoked script if master!=0
-                sv.Current_clause=None, None, None
-                sv.Do_tests=autotest
-                if autotest: print("\nTESTING", testnum, sourcename)
-
-                # try opening script file                
-                try:                                                            
-                        tout=io.readscriptfile(sourcename)                
-                except IOError:
-                        print("\n", Err_no_source, "\n-->", sourcename)
-                        if initialized: io.finish()                              # properly close boxes
-                        if not IDLE: io.waitforuser()
-                        os._exit(1)                                                # graceful exit   
-
-                # compile script file                
-                print("building", sourcename)
-                prog=pc.precompile(sv, tout)
-                if sv.slaveto: prog=make_yoked(prog)
-                cm.compile(sv, prog)
-                sv.Graphic=((Show in sv.Object) or parallel) and not Blind in sv.Object      # interactive panel if "show" is detected       
-
-                # FULL INITIALIZATION PROCEDURE
-                iv.prepare_program(sv)                                   
-
-                if not initialized: io.initialize(sv, iocodes)         # input and output codes for event logging  
-                io.init_interrupts(sv)                                          
-                io.initbox(sv, showname)                                   
+                try:
+                    prepare_script()                                                         # read and compile script, initialize box
+                except ReferenceError:
+                    if not autotest or not Testerror in sv.Object: raise ReferenceError
+                    continue                                                                    # ignore voluntary errors during tests
                 initialized=True
-                sv.Counter=0                                                # debuggin variable
-                rt.filestore(sv)                                               # open file(s) for storage if needed                                                                     
-                svlist.append(sv)                                           # list of programs
-                print("\n============================================")
+                if parallel: box+=1                                                        # increment box channel number
+                testnum+=1
+                if sv.Do_tests: print("\nTESTING", testnum, sourcename)
 
-            # end loop on script names
+                if not sv.Graphic:    
+                    # RUN SCRIPTS SEQUENTIALLY WITHOUT CONTROL PANEL                          
+                    sv.masterto=[1]                                         # include master box 
+                    if autotest:
+                        io.Inpause=1                                         # start at once in autotest
+                    else:
+                        io.waitforuser("Press Enter to start, Ctrl-C to abort")
+                        if io.Inpause==2: raise KeyboardInterrupt
+                    io.run(sv)                                             
+                    sv.t0=io.clock()+Epsilon_time                    # synchro (inputs as delayed events)
+                    try:
+                        rt.run_update(sv)                                      # START RUNTIME
+                    except ReferenceError:
+                        if not autotest or not Testerror in sv.Object: raise ReferenceError
+                        continue                                                   # ignore voluntary errors during tests                        
+                    io.closebox(sv)
+                    io.finish()
+                        
+                    initialized=False           
 
-            if sv.Graphic: 
+            if sv.Graphic:                    
                 # RUN SCRIPTS IN PARALLEL
+                windowlock=lock_window(windowlock)   # prevent window from closing
                 for i, sv in enumerate(svlist):                         
                     sv.masterto=[i+1]+sv.masterto                 # include master box
                     if sv.slaveto: svlist[sv.slaveto-1].masterto+=[i+1]  # master control on yoked scripts 
@@ -164,23 +188,6 @@ if __name__== "__main__":
                     sv.t0=io.clock()+Epsilon_time                  # synchro (inputs as delayed events)     
                 new_session=cp.makebox(svlist, autotest)    # lauch control panel
                 
-            else:    
-                # RUN SCRIPTS SEQUENTIALLY WITHOUT CONTROL PANEL                          
-                sv.masterto=[1]                                         # include master box 
-                if autotest:
-                    io.Inpause=1                                         # start at once in autotest
-                else:
-                    io.waitforuser("Press Enter to start, Ctrl-C to abort")
-                    if io.Inpause==2: raise KeyboardInterrupt
-                io.run(sv)                                             
-                sv.Current_time=0 
-                sv.t0=io.clock()+Epsilon_time                    # synchro (inputs as delayed events)     
-                rt.run_update(sv)                                      # START RUNTIME
-                io.closebox(sv)
-                io.finish()
-                
-            initialized=False           
-
         except ReferenceError:                                      # error
             if initialized:
                 io.finish()
@@ -206,9 +213,9 @@ if __name__== "__main__":
                                 for c,v in x.clauses:
                                     print("   cond:", c, "val:",v)
                             print()
-            if autotest: print("\nTests lasted", io.clock()-debut)
-            if not IDLE: io.waitforuser()
-            os._exit(1)
+        if autotest: print("\nTests lasted", io.clock()-debut)
+        if not IDLE: io.waitforuser()
+        os._exit(1)
 
     # no new session        
     if autotest: print("\nTests lasted", io.clock()-debut)
