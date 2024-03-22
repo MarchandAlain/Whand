@@ -148,6 +148,16 @@ def do_text(sv, tree, nom, O, A, B, nodA, nodB, n1, n2, res):
             else: res.value=buildtext(sv, vl)                        # make text
         return sv, res, None                                                 # end evaluation
 
+# ==================================================== do_tell    
+def do_tell(sv, tree, nom, O, A, B, nodA, nodB, n1, n2, res):
+        vl=nodA.value
+        if vl is not None:
+            if n1==Drtn: text=str(seconds(vl))+Unit_sec  # convert delay to seconds
+            else: text=buildtext(sv, vl)                               # make text
+        # do not change res
+        io.screenprint(text)
+        return sv, res, None                                                 # end evaluation
+
 # ========================================================
 # Normal operations
 """
@@ -414,7 +424,10 @@ def do_load(sv, O, v1, v2):                                                     
         li=[]                                                                  # split text into lines
         li=brut.split(Crlf)
         for i,expr in enumerate(li):                               # look for list in each line
-            expr=expr.strip(Space)                                            
+            expr=expr.strip(Space)
+            if not expr:
+                    print(Warn_empty_line)
+                    print(v1)
             li[i]=expr
             if detectlist(expr):                                                    
                 expr=no_brackets(expr)                           # remove brackets
@@ -430,20 +443,26 @@ def do_logd(sv, O, v1, v2):                                                     
 
 # ======================================= 
 def do_match(sv, O, v1, v2):                                                                                                          # match 
-        # not distributive: use '=' or 'is' instead                 
-        if coincide(v1, v2): return True                               
+        # not distributive: use '=' or 'is' instead
+##        print("matching", v1, "\nwith    ", v2)
+        if coincide(v1, v2): return True
         if type(v1)!=list or type(v2)!=list: return False     
         if len(v1)!=len(v2): return False
 
         for c,d in zip(v1,v2):                                     # deep matching 
-            a = c if isnumber(c) else deep_get(sv, c, Value)
-            b = d if isnumber(d) else deep_get(sv, d, Value)
-            if c in sv.Object and sv.Object[c].nature==Bln:
-                a=logic(a[0], sv.Current_time)       
-            if d in sv.Object and sv.Object[d].nature==Bln:
-                b=logic(b[0], sv.Current_time)
-##            print(a,b)
-            if not coincide(a,b): return False
+            a = c if isnumber(c) or c in [Vrai, Faux] else deep_get(sv, c, Value)   # do not decompose true/false
+            b = d if isnumber(d) or d in [Vrai, Faux] else deep_get(sv, d, Value)
+            if type(c)==list or type(d)==list:
+                if not do_match(sv, O, c, d): return False
+            else:
+                if c in [Vrai, Faux]: a=(c==Vrai)
+                elif c in sv.Object and sv.Object[c].nature==Bln:                
+                        a=logic(a[0], sv.Current_time)       
+                if d in [Vrai, Faux]: b=(d==Vrai)
+                elif d in sv.Object and sv.Object[d].nature==Bln:
+                        b=logic(b[0], sv.Current_time)
+                if not coincide(a,b): return False
+##        print("match is true")
         return True                                                                                                   
 
 # ======================================= 
@@ -632,10 +651,19 @@ def do_time(sv, O, v1, v2):                                                     
 
 # ======================================= 
 def do_to(sv, O, v1, v2):                                                                                                     # to
-        if type(v1)==list and type(v2)==list:
-            if v1[-1] is not None and v2[-1] is not None: return v2[-1]-v1[-1]
-##        if type(v1)==tuple and type(v2)==tuple:                                         
-##           if v1[0] is not None and v2[0] is not None: return v2[0]-v1[0]                     
+        # modified to return only first latency
+        if type(v1)==list and type(v2)==list and v1 and v2:
+            if v1[-1] is not None:
+                i=len(v2)-1
+                if i>=0 and v2[i] is not None:
+##                        print("occur lists", v1[-1], v2[-5:])
+                        t=v2[i]
+                        while i>=0:
+                                if v2[i] is not None and v2[i]>=v1[-1]:
+                                    t=v2[i]
+                                    i-=1
+                                else: i=-1   # stop here
+                        return t-v1[-1]
         return None                                 
     
 # ======================================= 
@@ -680,7 +708,7 @@ def do_within(sv, O, v1, v2):                                                   
 # ==================================================== Specially_evaluated
 # dict to special operations without distributivity
 special_evaluation={Next: do_next, Pointer: do_pointer, Have: do_have, 
-                     Cumul: do_cumul, Steps: do_steps, Text: do_text, Call: do_call}
+                     Cumul: do_cumul, Steps: do_steps, Text: do_text, Tell: do_tell, Call: do_call}
 
 #===================================================== normal_evaluation
 # dict to normal operations

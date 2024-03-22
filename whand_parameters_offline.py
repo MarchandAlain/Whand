@@ -4,12 +4,12 @@ Whand language: Alain Marchand 2019.
 This is the options and parameters module. 
 """
 # system =====================================================
-Pywin=True                                     # True when running under Windows
+Pywin=False                                     # True when running under Windows
 Nosave= True                                  # set to False to record/read event data
 Printout= False    # True                    # display message when i/o change (debugging tool)
 
 # timing constants ===============================================
-Speed_factor=1                                  # to accelerate (or slow down) clock under controlpanel
+Speed_factor=10                                  # to accelerate (or slow down) clock under controlpanel
 Timestep=.05                                    # display refresh period (seconds)
 
 # I/O options ====================================================

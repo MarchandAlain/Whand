@@ -11,6 +11,7 @@ try:
 except:
     raise ImportError('Tk wrapper not available')
 
+pause_pin_code=98
 Screen_width = 1300                 # for labels only. Actual screen size is determined later in makebox
 PFColor=PinFalseColor if Speed_factor==1 else PinFastColor if Speed_factor>1 else PinSlowColor
 LabelGS=Label_global_start if Speed_factor==1 else Label_global_fast+str(Speed_factor) if Speed_factor>1 else Label_global_slow
@@ -271,6 +272,7 @@ class Interface(Frame):
             if self.pause:                                                   # resume after pause
                 self.pause=False
                 sv.t0=io.clock()*Speed_factor-sv.Current_time+Epsilon_time  # adjust clock with delay  
+                io.setpin(sv, pause_pin_code, False, io.clock()*Speed_factor-sv.t0)
                 print(Warn_resume)            
             for element in sv.Visible:                                # update display before starting
                 self.update(sv, element)
@@ -297,11 +299,12 @@ class Interface(Frame):
             if not self.closed:
                 self.exitbox(sv, supervisor, svlist)                                     # exit sequence
                 if getattr(self, 'callback', 0)!=0: self.after_cancel(self.callback)   # prevent 'after' callback
-        else:                                                                            # resume after a pause     
+        else:                                                                            # just a pause     
             self.bouton_start["bg"] = PFColor                  
             self.bouton_start["text"] =Label_resume
             self.pause=True
             print(Warn_pause)
+            io.setpin(sv, pause_pin_code, True, io.clock()*Speed_factor-sv.t0)
 
     def exitbox(self, sv, supervisor, svlist):                                       # exit sequence
         if Exit in sv.Object and not istrue(sv.Object[Exit], sv.Current_time) and not self.closed:

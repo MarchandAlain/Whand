@@ -2345,16 +2345,17 @@ def make_pin_list(sv):
         sv.Object[nam].clauses=[((Always, None, None),(nam, None, None))] # make sure pin is regularly scanned
         
     for nam in li:                                                                    # browse list of effects to find equivalent names                                                                              
-        for pi in sv.Pinlist:                                                         # create Namedpinlist                                                                                       
-            if pi.startswith(Pin):                                                   # (not for keys) 
-                ok=True
-                for c,v in sv.Object[nam].clauses:
-                    # condition must be start or change(pin)
-                    if c!=(Start, None, None) and c!=(Change, (pi, None, None), None): ok=False                    
-                    # value must be pin with numerical index
-                    if not (v and v[0]==Pin and tree_join(v)==pi): ok=False
-                if ok:
-                    sv.Namedpinlist[pi]=nam                                # found equivalent name
+        if not applied(nam, Count):        
+            for pi in sv.Pinlist:                                                         # create Namedpinlist                                                                                       
+                if pi.startswith(Pin):                                                   # (not for keys) 
+                    ok=True
+                    for c,v in sv.Object[nam].clauses:
+                        # condition must be start or change(pin)
+                        if c!=(Start, None, None) and c!=(Change, (pi, None, None), None): ok=False                    
+                        # value must be pin with numerical index
+                        if not (v and v[0]==Pin and tree_join(v)==pi): ok=False
+                    if ok:
+                        sv.Namedpinlist[pi]=nam                                # found equivalent name
 
 #===================================================== make_old_list 
 def make_old_list(sv, tree=Special):

@@ -50,7 +50,7 @@ def build_effects(sv):
                 if not eff[:here] in effect: effect[eff]+=[eff[:here]]                      # link element to root list
                 
             # then link argument to Boolean function instance
-            cau=applied(eff, Idem)+applied(eff, Begin)+applied(eff, End)+applied(eff, Change) \
+            cau=applied(eff, Old)+applied(eff, Begin)+applied(eff, End)+applied(eff, Change) \
                  +applied(eff, Not)+applied(eff, All)+applied(eff, Any)              # argument is the cause
             if cau:                                                                                              # a Boolean function instance
                 effect[cau]=[eff]                                                                         # link argument                                    
@@ -67,8 +67,8 @@ def build_effects(sv):
                         cau=Start
                         effect=link_effect(sv, cau, eff, effect)
                     else:                                                                                         # c[0] is begin, end or change
-                        # make an indirect link through treejoin(c) if it is in sv.Object
-                        cau1=treejoin(c)
+                        # make an indirect link through tree_join(c) if it is in sv.Object
+                        cau1=tree_join(c)
                         if cau1 in sv.Object:
                             effect=link_effect(sv, cau1, eff, effect)
                             cau2=c[1][0]
@@ -136,7 +136,7 @@ def moretime(nom, v, timing):
                 if t!=par and t in ti and not (t, par) in res:
 ##                    for par2 in [c for (l,c) in res if l==t]:
 ##                       if not par2.startswith(par) and not par.startswith(par2) \
-##                          and not applied(par, Idem)+applied(par2, Idem)+applied(nom, Idem) \
+##                          and not applied(par, Old)+applied(par2, Old)+applied(nom, Old) \
 ##                          and not applied(par, End)+applied(par2, End):
                     
                             print("******", nom+":", (t,par))
@@ -185,7 +185,7 @@ def criticize(sv):
                         bad=True                                                    # verify if it is a true collision
                         tim, cau1, cau2=ti[i], cau[i], cau[i+j+1]
                         if tim in seeds: bad=False
-                        if applied(cau1, Idem) or applied(cau2, Idem): bad=False
+                        if applied(cau1, Old) or applied(cau2, Old): bad=False
                         if applied(name, cau1) or applied(name, cau2): bad=False
                         if bad:                                                         # verify if it has consequences
                             bad=False
@@ -214,7 +214,7 @@ def find_timing(sv, nom="", parent="", effct={}, timg={}, seeds=[]):
             if Verbose: print("      clause:", c,v)
             offset=""
             cau=parent           
-##                if c[0]==Change and c[1][0]==treejoin(v):              # try to
+##                if c[0]==Change and c[1][0]==tree_join(v):              # try to
 ##                    pass                                                                     # ignore tracking value
 ##                else:
             if v[0]==Since: v=(Plus, v[2], v[1])                             # change Since into Plus 
@@ -251,6 +251,8 @@ def find_timing(sv, nom="", parent="", effct={}, timg={}, seeds=[]):
 ###===================================================== main
 if __name__== "__main__":
     print("whand_critic.py: syntax is correct")
+
+
 
 
 

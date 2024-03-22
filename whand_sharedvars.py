@@ -32,7 +32,7 @@ class spell:
         self.Delayed_objects=[]                                 
         self.delayed_list=[]
         self.Active_list=[]                                          
-        self.Idem_list=[]                                            
+        self.Old_list=[]                                            
         self.Volatile=[]                    # list of objects that need to be always updated 
         self.Stochastic=[]                # list of objects that change value 
         self.Condition=[]                
@@ -71,7 +71,7 @@ class spell:
         self.Delayed_objects[:]=[]                                  
         self.delayed_list[:]=[]
         self.Active_list=[]                                          
-        self.Idem_list[:]=[]                   
+        self.Old_list[:]=[]                   
         self.Volatile[:]=[]                    # list of objects that need to be always updated
         self.Stochastic=[]
         self.Condition=[]                      
@@ -87,4 +87,5 @@ class spell:
         self.t0=0                            # development tool: timing initialization 
 
         io.clearbuffer(self)          # clear interrupt buffer for pins 
+
 

@@ -53,14 +53,15 @@ Legend+="19 :  front montant enclenchement led B\n"
 Legend+="20:   front montant enclenchement led C\n"
 Legend+="21 :  front montant enclenchement led D\n"
 Legend+="22 :  front montant enclenchement led E\n"
-Legend+="23 :  front montant enclenchement led F\n"
-Legend+="24 :  front montant enclenchement son\n"
+Legend+="23 :  front montant enclenchement son clicker\n"
+Legend+="24 :  front montant enclenchement son tone\n"
 Legend+="25 :  front montant enclenchement lumière EA\n"
 Legend+="26 :  front montant enclenchement injection\n"
 Legend+="27 :  front montant enclenchement choc\n"
 Legend+="28 :  front montant enclenchement stimulation\n"
 Legend+="29 :  ACTIVITE front montant entree zone gauche\n"
 Legend+="30 :  ACTIVITE front montant entree zone droite\n"
+Legend+="39 :  Pause\n"
 Legend+="41 :  rétraction pédale A\n"
 Legend+="42 :  rétraction pédale B\n"
 Legend+="43 :  fermeture trou C\n"
@@ -90,6 +91,7 @@ Legend+="67 :  fin choc\n"
 Legend+="68 :  fin stimulation\n"
 Legend+="69 :  fin zone gauche\n"
 Legend+="70 :  fin zone droite\n"
+Legend+="79 :  fin pause\n"
 Legend+="99 :  fin séance\n"
 
 Header1="Date version:  18/04/2017\nDate expérience:\t"
@@ -439,6 +441,7 @@ def initbox(sv, sourcename):                                                  # 
     global Filename
 
     sv.t0=clock()
+    sv.t1=clock()
     box=sv.Boxnumber
     Scriptname[box]=sourcename
     dr.open_one_box(box)                                               # initialize access to box
@@ -504,6 +507,7 @@ def run(sv):                                                                    
     box=sv.Boxnumber
     Started[box]=True
     sv.t0=clock()
+    sv.t1=clock()
     if sv.Do_tests: return
     if Mylog[box]: header(sv, box)
 
@@ -556,7 +560,7 @@ def closebox(sv):                                                               
             if Mylog[box]:                                                                # if file has not been closed
                 if not Started[box]: header(sv, box)                          # add header to file
                 if not Online_save: Mylog[box].write(Mybuff[box])   # save log to file and/or close it
-                msg=buildtime(clock()-sv.t0)
+                msg=buildtime(clock()-sv.t1)                                    # use real time, ignore pauses
                 msg+="99\n"                                     
                 Mylog[box].write(msg)                                     
                 Mylog[box].write(Legend)
@@ -587,7 +591,7 @@ def finish():                                                                   
             box=sv.Boxnumber
             if Mylog[box]:                                          # if file has not been closed
                 if not Online_save: Mylog[box].write(Mybuff[box])   # save log to file and/or close it
-                msg=buildtime(clock()-sv.t0)
+                msg=buildtime(clock()-sv.t1)                                    # use real time, ignore pauses
                 msg+="99\n"                                     
                 Mylog[box].write(msg)                                     
                 Mylog[box].write(Legend)
@@ -671,8 +675,8 @@ def setpin(sv, pinnumber, status, tim=0):                          # required by
         dr.write_one_bit(box, nb, bit)
 
         if not Nosave and Started[box]:                                       # do not record before start
-            cd=Codes[nb] if nb in Codes else ("NA", "NA")           # store info to file or buffer                 
-            msg=buildtime(tim)                                           # ("%d" % (tim*Split_second))+"\t"                                       
+            cd=Codes[nb] if nb in Codes else ("NA"+str(nb), "NA"+str(nb))           # store info to file or buffer                 
+            msg=buildtime(tim+sv.t0-sv.t1)                        # ("%d" % (tim*Split_second))+"\t"    ignore pauses                                   
             msg+=cd[0] if st else cd[1]                                                 
             if Online_save:
                 Mylog[box].write(msg+'\n')
@@ -752,7 +756,7 @@ def readpins(sv):                                                               
     
     if (Printout or not Nosave) and Started[box]:                         # log or print results
         for nb, st, tim in ch:
-            msg=buildtime(tim-sv.t0)                 #    ("%d" % ((tim-sv.t0)*Split_second))+"\t"
+            msg=buildtime(tim-sv.t1)                 #    ("%d" % ((tim-sv.t1)*Split_second))+"\t"              # use real time, ignore pauses
             if nb[0]=="P":
                 nb=-int(nb[1:])
                 cd=Codes[nb] if nb in Codes else ("0", "0")   # keep it numeric
@@ -1411,11 +1415,14 @@ def controlled_proba(args):
 
  ###===================================================== main
 if __name__== "__main__":
-    li=getbinfile("../scripts/essai.txt")
-    li=no_line_feed(li)
-    print(bin_to_text(li))
-    print("==================================")
-    li=fuse_continued_lines(li)
-    txt=bin_to_text(li)
-    print(txt)
+    print("\n*** whand_io ONLINE ***")
+    waitforuser()
+    
+##    li=getbinfile("../scripts/essai.txt")
+##    li=no_line_feed(li)
+##    print(bin_to_text(li))
+##    print("==================================")
+##    li=fuse_continued_lines(li)
+##    txt=bin_to_text(li)
+##    print(txt)
 

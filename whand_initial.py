@@ -344,14 +344,19 @@ def make_delayed_list(sv):
     --------
         information is directly stored in sv.Delayed_objects
     """
-    for nod in sv.Object.values():
-        nam=nod.name
+    sv.Delayed_objects=[]
+    
+    for nam in sv.Object_list:
+        nod=sv.Object[nam]
+##    for nod in sv.Object.values():                                  # WRONG BECAUSE RANDOMIZES ORDER
+##        nam=nod.name
         if nam[0]==Special: continue                                   # ignore old and special objects
         if nod.nature==Lst: nod.isdelayed=False                           
         elif applied(nam, Begin) or applied(nam, End) or applied(nam, Pin) or applied(nam, Key) \
              or applied(nam, Measure) or applied(nam, Read): nod.isdelayed=True
 
-    sv.Delayed_objects=[nod.name for nod in sv.Object.values() if nod.isdelayed]
+        if nod.isdelayed: sv.Delayed_objects+=[nam]     # LIST COMPREHENSION IS WRONG BECAUSE RANDOMIZES ORDER
+##    sv.Delayed_objects=[nod.name for nod in sv.Object.values() if nod.isdelayed]
 
 #===================================================== make_active_list
 def make_active_list(sv):                                                                                            

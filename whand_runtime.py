@@ -57,7 +57,11 @@ def update_loop(sv):
     if not istrue(sv.Object[Exit], sv.Current_time):
         io.keyscan()                                                                     # scan key input 
         pinscan(sv)                                                                      # scan pins before each time step 
-        sv.delayed_list = nextevents(sv)                                        # reorder all delays (keys and pins are delayed)
+        sv.delayed_list = nextevents(sv)                                       # reorder all delays (keys and pins are delayed)
+        # if no input is expected, force exit from infinite loop
+        if not sv.delayed_list and not sv.Pinlist and Testerror in sv.Object:                            
+            print("\n*** Infinite loop detected: Execution stopped ***")
+            sv.Object[Exit].value=[(sv.Current_time, None)]   
     
     # check and process objects whose values may change without direct cause, first of all
     # volatile objects are pointer, lasted itis (see whand_compile). What about displayed outputs ???
@@ -218,6 +222,11 @@ def updateval(sv):
                 if Verbose: print("xxxx cond", sv.Current_time, "s:", nom, Col, When, cnd, (c,), [sv.Condition[c]==1], Col, v)
 
                 if (sv.Condition[c]!=1): continue                                # condition is fulfilled if equal to 1 (see update_condition)
+
+                # special case: function tell
+                if v[0]==Tell:
+                    evaluate(sv, v, clausenum=vnum)                        # evaluate and print
+                    return                                                                   # do not evaluate node
                 
                 # compute value and deep changes                                                                                            
                 res, ch=evaluate(sv, v, clausenum=vnum)                                     # NOW EVALUATE NODE <---------------
@@ -300,7 +309,7 @@ def value_has_changed(sv, nod, res, ch):
 
     # special case for events: no change if delays or status are the same                   
     if newval and nod.nature==Bln:
-        if nod.isdelayed:
+        if nod.isdelayed or res.isdelayed:                          # modified after Whanda 
             prev=nod.value[:]                                             # delayed event: check if changed
             fuse_delays(sv, nod, res)                                   # set new delays (would be better if done later)       
             if nod.value==prev:
@@ -453,7 +462,8 @@ def evaluate(sv, tree, objname=None, clausenum=0):
     if O in sv.Object: return evaluate_list_element(sv, *args)  # list element (subscripted)       
 
     # special functions (non distributive)
-    if O in special_evaluation: return dec_recurse(*evaluate_special(sv, *args))
+    if O in special_evaluation:
+        return dec_recurse(*evaluate_special(sv, *args))
 
     # distribute list of Begin or End
     if O in [Begin, End] and sv.Object[A[0]].nature==Lst:
@@ -711,6 +721,11 @@ def evaluate_list_element(sv, tree, nom, O, A, B, nodA, nodB, n1, n2, res):
         res.value=getlistlist(sv, nom, nodA, vlist)             # extract value
         return dec_recurse(sv, res, None)                        # end evaluation
 
+    else:
+        print(Anom_deep_get)
+        print(tree, nom, O, A, B)
+        raise ReferenceError
+    
 # ==================================================== distributive_delay
 def distributive_delay(sv, objname, tree, nom, O, A, B, nodA, nodB, n1, n2, res):
     """
@@ -1240,8 +1255,10 @@ def fuse_delays(sv, nod, res=None):
     else:
         dly=nod.value        # combine both lists
 #    dly=nod.value+res.value if res is not None else nod.value        # combine both lists
-    times=list(set([x[0] for x in dly if x and x[0] is not None]))         # ontimes without duplicates (also prior to current time)                                
-    times+=list(set([-x[1] for x in dly if x and x[1] is not None and x[1]>=sv.Current_time]))  # offtimes with negative sign  
+##    times=list(set([x[0] for x in dly if x and x[0] is not None]))         # ontimes without duplicates (also prior to current time)                                
+##    times+=list(set([-x[1] for x in dly if x and x[1] is not None and x[1]>=sv.Current_time]))  # offtimes with negative sign  
+    times=no_duplicate([x[0] for x in dly if x and x[0] is not None])         # ontimes without duplicates (also prior to current time)                                
+    times+=no_duplicate([-x[1] for x in dly if x and x[1] is not None and x[1]>=sv.Current_time])  # offtimes with negative sign  
     if not times: return                                                                     # nothing to fuse
     times.sort(key=abs)                                                                   # sort on and off in proper time order
                                                             # because sort is stable, an on will still precede a simultaneous off
@@ -1252,6 +1269,7 @@ def fuse_delays(sv, nod, res=None):
         if x<0:                                                                                    # off time
             if stored:                                                                            # on time has been processed
                 stored=False
+                if -x==laston: x=-laston-Glitch_time/2                          # no event with zero duration
                 dly[-1]=(laston, -x)                                                        # insert known off time and replace
             else:
                 dly+=[(laston, -x)]                                                         # maybe off without on
@@ -1291,7 +1309,8 @@ def nextevents(sv):
                 li+=[(u, nam)]                                           # store on events with positive sign
             if v is not None and v>sv.Current_time:   
                 li+=[(-v, nam)]                                          # store off events with negative sign
-    li=list(set(li))                                                             # remove duplicates                                                          
+    li=no_duplicate(li)                                                        # remove duplicates while preserving order
+##    li=list(set(li))                                                             # remove duplicates        
     li.sort(key=lambda x: abs(x[0]), reverse=True)            # sort according to decreasing time
     return li
 
