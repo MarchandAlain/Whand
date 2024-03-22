@@ -122,6 +122,9 @@ def save_strings(sv, prog):
             raise ReferenceError
         count+=1
         code=Chain+str(count)                                       # storage key, e.g.  `Chain3`
+        while code in sv.Strings:
+            count+=1
+            code=Chain+str(count)                                       # storage key, e.g.  `Chain3`           
         sv.Strings[code]=prog[here+1:there]                    # save string in a dictionary 
         prog=prog[:here]+Special+code+Special+prog[there+1:]  # replace with storage key
     return prog
@@ -299,6 +302,9 @@ def alphachange(prog, old, new):
     """
     pr=Space+prog+Space                                                              # add spaces around prog
     for osep in Symb:
+        # special case: print function
+        pr=pr.replace(osep+Print+Obr, osep+Tell+Obr)                 # substitute
+        pr=pr.replace(osep+Print+Space+Obr, osep+Tell+Obr)                 # substitute
         for csep in Symb:           
             pr=pr.replace(osep+old+csep, osep+new+csep)                 # substitute
     return pr[1:-1]                                                                           # remove spaces around prog                                               

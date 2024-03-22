@@ -14,21 +14,22 @@ Bloc="Bloc"
 Garde="Keep"
 
 # global constants  (with Capital in name)
-When, Until, And, Or, Find, Listfind, Isin, Within, Is, Isnot, Plus, Minus, Mult, Div, Equal, Nequal, Greater, Smaller, Grequal, Smequal, \
+When, Or_when, Until, Or_until, And, Or, Find, Listfind, Isin, Within, Is, Isnot, Plus, Minus, Mult, Div, Equal, Nequal, Greater, Smaller, Grequal, Smequal, \
                       Order, Sequence, Col, Obr, Cbr, Crlf, Lf, Space, Tabul, Underscore, Tab, Mline, Comma, Quote, Dot, Prime, Hash\
-          =  "when", "until", "and", "or", "find", "listfind", "isin", "within", "is", "isnot", "+", "-", "*", "/", "=", "!=", ">", "<", \
+          =  "when", "or when", "until", "or until", "and", "or", "find", "listfind", "isin", "within", "is", "isnot", "+", "-", "*", "/", "=", "!=", ">", "<", \
                        ">=", "<=", "order", "sequence", ":", "(", ")","\n", "\r", " ", "    ", "_", "\t", chr(92), ",",'"',".", "'", "#" 
 Vrai, Faux, Always, Epsilon, Empty, Add, Value, Name, Pin, Key, Output, Display, Touch, Dialog, Start, Exit, \
-                  Cumul, Steps, Sqrt, Intg, Absv, Load, Store, Image, Have, Pointer, Text, Call, Close, Print, Screen, Be \
+                  Cumul, Steps, Sqrt, Intg, Absv, Load, Store, Image, Have, Pointer, Text, Call, Close, Print, Screen, Be, Novalue \
         ="true","false", Special+"always", "epsilon", "empty", "add", "value", "name", "pin", "key", "output", \
                 "display", "touch", "dialog", "start", "exit", "cumul", "steps", "sqrt", "intg", "absv", "load", "store", \
-                 "image", "have", "pointer", "text", "call", "close", "print", "screen", "be"
+                 "image", "have", "pointer", "text", "call", "close", "print", "screen", "be", "novalue"
 Not, Any, All, Next, Pick, Begin, End, To, Inter, Change, Lastchange, Count, Since, Lasted, Occur, \
      Ramp, Sort, Proba, Old, Measure, Command, Read, Write, Match, Hasvalue, Controlpanel \
          ="not", "any", "all", "next", "pick", "begin", "end", "to", "inter", "change", "lastchange", "count", "since", "lasted", "occur", \
          "ramp", "sort", "proba", "old", "measure", "command", "read", "write", "match", "hasvalue", "controlpanel"
-Logd, Powr, Shuffle, Alea, Itis, Ewent, Number, Time, Delay, State, List, Blind, Show, Include, Unused \
-        = "logd", "powr", "shuffle", "alea", "itis", "event", "number", "time", "delay", "state", "list","blind", "show", "include", "unused"                                         
+Logd, Powr, Shuffle, Alea, Itis, Ewent, Number, Time, Delay, State, List, Tell, Blind, Show, Include, Unused, Testerror \
+        = "logd", "powr", "shuffle", "alea", "itis", "event", "number", "time", "delay", "state", "list", \
+            "tell", "blind", "show", "include", "unused", "testerror"                                        
 Wday=["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]         
 Month=["january", "february", "march", "april", "may", "june", "july", \
              "august","september", "october", "november", "december"]         
@@ -46,14 +47,14 @@ IsEmpty="is "+Empty
 MatchEmpty=Match+Space+Empty
 
 # Synonyms
-Alphachangelist=[(Is_in, Isin),(Is_not, Isnot),(It_is, Itis) \
+Alphachangelist=[(Is_in, Isin),(Is_not, Isnot),(It_is, Itis), (Or_when, When), (Or_until, Until) \
                  , (Print, Store_screen), (Be, WFalse), (IsEmpty, MatchEmpty)]  
 
 # operator categories
 Selectors=[All, Any, Next]
 Internal_Functions = [Begin, End, Change, Lasted, Inter, Count, Occur, Ramp, Proba, Hasvalue, \
                       Not, Pin, Key, Measure, Read, Touch, Name, Logd, Shuffle, Alea, Cumul, Steps, Order, Sequence, \
-                      Sqrt, Intg, Absv, Load, Image, Have, Old, Pointer, Text, Itis, Time, Call]  
+                      Sqrt, Intg, Absv, Load, Image, Have, Old, Pointer, Text,Tell, Itis, Time, Call, Value, Novalue]  
 Comparators = [Within, Is, Isnot, Isin, Nequal, Grequal, Smequal, Equal, Greater, Smaller, Match, Since]
 Operators = [Plus, Minus, Mult, Div,  Add, Powr, Find, Listfind, To, Pick, Sort]                                    
 Basic_operators=Comparators+[And, Or, Not, Comma, Vrai, Faux]+Operators
@@ -84,7 +85,8 @@ Operators = set(Operators)
 Basic_operators=set(Basic_operators)
 
 # Functions whose result may vary without explicit cause
-Stochastic={Next, Proba, Shuffle, Alea}               
+# not to be used in conditions or expressions
+Stochastic={Next, Proba, Shuffle, Alea, Tell}               
 
 # TIME UNITS
 Unit_sec= "s" 
@@ -213,11 +215,24 @@ Allowed[Old]+=[(Drtn, Value, [], None, Drtn)]               # keeps old value
 Allowed[Old]+=[(Stt, Value, [], None, Stt)]                     # keeps old value    
 Allowed[Old]+=[(Lst, Value, [], None, Lst)]                    # keeps old value 
 Allowed[Old]+=[(Bln, All, [], None, Bln)]                         # keeps old value 
+Allowed[Value]=[(Nmbr, Value, [], None, Nmbr)]              # gets value    
+Allowed[Value]+=[(Drtn, Value, [], None, Drtn)]                # gets value 
+Allowed[Value]+=[(Stt, Value, [], None, Stt)]                     # gets value     
+Allowed[Value]+=[(Lst, Value, [], None, Lst)]                     # gets value  
+Allowed[Value]+=[(Bln, All, [], None, Bln)]                         # gets value 
 Allowed[Text]=[(Nmbr, Value, [], None, Stt)]                     # converts value to text  
 Allowed[Text]+=[(Bln, Value, [], None, Stt)]                       # converts value to text    
 Allowed[Text]+=[(Stt, Value, [], None, Stt)]                        # converts value to text    
 Allowed[Text]+=[(Drtn, Value, [], None, Stt)]                     # converts value to text    
-Allowed[Text]+=[(Lst, Value, [], None, Stt)]                        # converts value to text    
+Allowed[Text]+=[(Lst, Value, [], None, Stt)]                        # converts value to text
+
+Allowed[Tell]=[(All_natures, Value, [], None, All_natures)]     # does not change value    
+##Allowed[Tell]=[(Nmbr, Value, [], None, Nmbr)]                # does not change value    
+##Allowed[Tell]+=[(Drtn, Value, [], None, Drtn)]                  # does not change value    
+##Allowed[Tell]+=[(Stt, Value, [], None, Stt)]                       # does not change value  
+##Allowed[Tell]+=[(Lst, Value, [], None, Lst)]                       # does not change value  
+##Allowed[Tell]+=[(Bln, All, [], None, Bln)]                           # does not change value
+
 Allowed[Pointer]=[(Lst, Pointer, [], None, Nmbr)]                            
 Allowed[Shuffle]=[(Lst, Value, [], None, Lst)]                      # shuffle lists  
 Allowed[Itis]=[(Drtn, Value, [], None, Bln)]                        # absolute time event   
@@ -344,6 +359,7 @@ Err_yoked="*** Error: invalid yoke master number ***"
 Err_abort="\n---  PROCESS ABORTED  ---"
 Press_enter="\n>> Press Enter to quit"
 # io
+Warn_empty_line="\n*** Warning: File contains empty lines ***"
 Err_io_number="\n*** Error in input or output number ***"
 Err_config="\n*** Configuration error ***"
 Err_create="\n*** Unable to create"
