@@ -1,0 +1,253 @@
+possible future improvements: 
+detect double colons
+print with format
+function size for lists would allow distributivity of count(list of events)
+unsolved problem with priority of unary minus
+print should remove quotes and format numbers and times
+
+
+v2.817: added function tell and print( )
+	added synonym "or when"
+
+v2.810: corrected whand_V2_8.py (autotests only compiled)
+	corrected operations.py (do_load, do_match)
+	modified test g files.txt
+	testerror and infinite loop detection
+
+v2.809: whand offline for .dat files
+	PAUSE and RESUME without offset (code 39, 79)
+
+v2.808: whand offline for .e01 files
+	improved operator match
+	corrected failed updating of pins during simultaneity 
+
+v2.8: refactoring
+	since now does not trigger after start unless explicitly stated
+	corrected bug in whand_controlpanel callback when too fast
+	Whand_compile now detects double values in a clause
+
+v2.702: corrected bug in compile accessory variables
+
+v2.701: Linux (Raspberry pi) compatibility. 
+	Rewritten io and precompile
+	Changed special char to backward quote
+	corrected minor bugs
+
+v2.606: call controlled_proba (whand2.6 and whand_io)
+
+v2.605: New_session button to repeat sessions
+	improved number formatting in controlpanel
+	made some empty operations yield empty list
+	improved cp.finish to cancel callbacks (Python3.8 compatibility)
+	added full path to windll import
+	corrected initialization in new session
+	reset outputs in error or abort
+	corrected function time (absolute)
+
+v2.604: allowed "ç" and replaced it with "c"
+	removed trailing zeros in float display
+	corrected bug in infinite loop message
+	adjusted message sizes in controlpanel
+	corrected some error messages
+	detect nature errors in list+delay (not sufficient)
+	allowed when in names
+	Speed_factor parameter under controlpanel
+	corrected display of lags
+
+v2.603: check all chars are printable
+	fixed minor bugs
+
+v2.6: changed index 0 to -1
+
+v2.503: yoked boxes
+	improved controlpanel
+
+v2.502: improved nature conflict detection
+	improved deep list changes
+	display and touch support
+	de-randomized make_conditions
+
+v2.500: parameter option for warnings
+	display source name
+	use run file name as script name
+	size of occur bounded and count attribute
+	fixed evaluation order plus random option
+	race detection and unstable condition detection
+	modified function To
+	accessory variables (prime) for user-defined functions
+	changes syntax for arguments (prime) in user-defined functions
+	separated whand_io from whand_driver for easier hardware adaptation
+	renamed analog input as measure
+	added read, write and command as keywords
+	removed take and idem syntax (be and old)
+	forced output to Bln	
+	removed references to piface
+	improved display of named pins in interactive mode
+	implicit multiplication
+
+v2.301: identify subscripted objects as lists (whand_operators)
+	improved nature determination
+	integral copy of lists in idem
+	removed rt.deep_idem (too slow)
+
+v2.300: corrected pin input bug
+	improved pin display
+	improved count display
+	export visible variables and counts
+	autosize and fixed window
+	allow window closure if all scripts are inactive
+	reduced printout of initial values
+	removed sv.Stochastic
+	replaced take with be 
+	module whand_parameter.py	
+
+v2.222: improved controlpanel
+	fixed window size
+	order of show
+	implicit hide
+	colors
+	corrected rt.getlistlist
+	syntax checks
+
+v2.220: cleanup of main
+	added function listfind
+	improved display of counts
+	improved output and store when does not change
+	improved next and pointer
+	improved detection of double list declaration
+	improved list indices as lists
+	improved stochastic at start
+	store at start only after full initialization
+
+v2.218: continued cleanup of runtime
+	corrected initialization of controlpanel
+	simplified some functions
+	changed begin start into start
+
+v2.217: continued cleanup of runtime
+	refactored external calls
+
+v2.215: continued cleanup of compile
+	refactored nature determination
+
+v2.214: continued cleanup of compile
+	refactored user function solving
+
+v2.213: continued cleanup of compile
+	improved and simplified treejoin
+	improved getnature  and determine
+
+v2.212: refactored priorities (wrong before)
+	started cleanup of precompile and compile
+	corrected Nequal for Booleans
+	improved stochastic initialization
+
+v2.211: prevented changing delay when event itself does not change
+
+v2.210: improved updating of volatiles in expressions
+
+v2.209: made package ready to install with Python 3.6
+	improved precompile to allow nested includes
+
+v2.208: improved controlpanel with multiple boxes on a single panel
+	save file in subdirectory 'data'
+	look for run file and scripts in subdirectory 'scripts'
+
+v2.207: improved io.closebox
+	cleanup precompile (not finished) 
+	added to autotest include,  elevator, mastermind
+
+v2.2: interfacing with ASi!
+	moved variable initialized and initio to ensure correct exit
+	corrected timing of inputs in runtime
+	added initbox to main and whand_io
+	separate logging for boxes
+	improved unused, uninitialized and undefined detection
+	output file name autoincrement
+	changed 'text' to 'state' and added 'take' as a new abbreviation to replace 'nature'
+	improved function 'since' to only work on offsets
+
+v2.104: changed compile/determine and treejoin2 to better match treejoin
+
+v2.103: changed Plus to prevent delayed events to reooccur when delay is changed. 
+	Corrected bug in compile/verify_clauses and in main/absolute_times
+	improved load and store
+	corrected pointer
+	modified add for events
+	modified print to move it to whand_io
+	improved delayed lists when changed after start
+
+v2.102: changed controlpanel inputs (pinnumbers and buffer) to allow parallel scripts
+
+v2.101: changed script input to allow parallel scripts
+
+v2.100: changed sv module into a class to allow parallel scripts as class instances
+
+v2.039: improved empty lists, created function hasvalue
+
+v2.038: improved store, load and match
+
+v2.037: Improved delayed lists. Tried to detect updating overflow. Closed tk window better. 'any change' is forbidden. 
+	Modified Alphachange. Autochange Derived print as store(screen). Changed 'time' nature to 'delay'.
+	Auto-change store/print value to list.
+
+v2.036: corrected faults of v2.035. Improved determine. 
+	Still problem with mastermind.txt but largely due to the script itself.
+
+v2.035: reverted change to 'Any' to yield False even if some are None.
+	improved determination of nature
+
+v2.034: improved prepareval with deep_get and simplified ops. Modified initialization of Bln to [(None, None)] and logic 
+	to avoid unfortunate effects during initialization. Modified setstatus. Lost a few tests in the process. 
+	Improved deep_get.
+
+v2.033: worked on function text. Improved exit at start, emptying files, nature in delayed lists, getnature
+	improved controlpanel
+
+v2.032: removed 'now' (use explicit events instead: e to f to measure time). 
+	Improved tool.consequences.
+	Lists of delayed objects
+                   Various polishing.
+
+v2.031: improved determine nature to detect roots as lists. Improved clear_delays. Improved updating of delayed objects. 
+	Stricter nature check. Improved detectlist. Prevented updating when status is unchanged. Improved conditions for cached glitches.
+
+v2.030: modified fuse_delays. Improved nature determination with reflection (nature must be fully solved before startvalue)
+
+v2.029: improved new clauses numerization. Improved nature at start (but not yet fully ok).
+
+v2.028: improved glitch processing by removing cache in rt.one-condition. Improved effects in list glitches. Removed updatechange to simplify. 
+	Still unsure what node attributes must be copied in nd.copynode2.
+
+v2.026-7: corrected rt.updatechange, tools.setstatus, rt.setvalue, evaluate
+
+v2.023-5: simplified updating, corrected logic!
+
+v2.022: tried removing alwaysend, dynalists, improved detection of change in Bln. But some tests stopped working. Modified setstatus.
+	tried removing  cached Begin/End but not a good idea yet (see later 2.028)
+
+v2.021: corrected rt list update with None, treejoin with subscripts, some tests in startv
+
+v2.020: find, isin for Bln, small bugs
+
+v2.019: within, find, improved recognition of True/False, isin for Bln
+             improved distributivity problem with Bln in ppv
+
+v2.018: pick, sort, to, since, isin, time, now, is empty, detection of ineffective objects, list begin/end (to be improved)
+
+v2.017: improved Match, detectlist
+
+v2.014: tests that work are included in autotest
+
+The purpose of V2 is to regularize some early specificities that complicate very much the design.
+- suppression of status. Instead, the value of a Boolean, is a tuple (timeon, timeoff) with None allowed as timeon or timeoff. False is (None, 0) and timeoff 0 is never delayed. A list cannot have a status, use (any L) instead. changeval and lasttime are removed.
+- suppression of implicits, which were modified by their wrapper variable. They should be replaced by objects of a new nature: state. A state object can take any text value, except as forbidden by syntax. Quotes override syntax. States can be tested through function 'is' or 'isnot'.
+
+still a problem when extracting a list element. It may be None or False, depending on its nature
+
+n.b. Print cannot be tested in autotest
+
+problem with delayed lists: 
+- a list should never be delayed
+- a list should not contain delon but references 
+
