@@ -224,21 +224,14 @@ Allowed[Text]=[(Nmbr, Value, [], None, Stt)]                     # converts valu
 Allowed[Text]+=[(Bln, Value, [], None, Stt)]                       # converts value to text    
 Allowed[Text]+=[(Stt, Value, [], None, Stt)]                        # converts value to text    
 Allowed[Text]+=[(Drtn, Value, [], None, Stt)]                     # converts value to text    
-Allowed[Text]+=[(Lst, Value, [], None, Stt)]                        # converts value to text
-
-Allowed[Tell]=[(All_natures, Value, [], None, All_natures)]     # does not change value    
-##Allowed[Tell]=[(Nmbr, Value, [], None, Nmbr)]                # does not change value    
-##Allowed[Tell]+=[(Drtn, Value, [], None, Drtn)]                  # does not change value    
-##Allowed[Tell]+=[(Stt, Value, [], None, Stt)]                       # does not change value  
-##Allowed[Tell]+=[(Lst, Value, [], None, Lst)]                       # does not change value  
-##Allowed[Tell]+=[(Bln, All, [], None, Bln)]                           # does not change value
-
+Allowed[Text]+=[(Lst, Value, [], None, Stt)]                        # converts value to text    
 Allowed[Pointer]=[(Lst, Pointer, [], None, Nmbr)]                            
 Allowed[Shuffle]=[(Lst, Value, [], None, Lst)]                      # shuffle lists  
 Allowed[Itis]=[(Drtn, Value, [], None, Bln)]                        # absolute time event   
 Allowed[Itis]+=[(Nmbr, Value, [], None, Bln)]                     # absolute time event   
 Allowed[Itis]+=[(Stt, Value, [], None, Bln)]                          # absolute time event   
 Allowed[Time]=[(Bln, Value, [], None, Drtn)]                          # absolute time event   
+Allowed[Tell]=[(All_natures, Value, [], None, All_natures)]
 Allowed[Call]=[(All_natures, Value, [], None, All_natures)]       # external function   
 
 Non_distributive1=[]                                                                         # list operators do not distribute 
